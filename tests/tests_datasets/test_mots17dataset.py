@@ -12,18 +12,23 @@
 #  express or implied. See the License for the specific language governing    *
 #  permissions and limitations under the License.                             *
 # *****************************************************************************
+import os
 from unittest import TestCase
 
-from models.faster_rcnn import FasterRCnn
+from datasets.mots17_dataset import Mots17Dataset
 
 
-class TestFasterRCnn(TestCase):
+class TestMots17Dataset(TestCase):
     def test_forward(self):
         # Arrange
-        num_classes = 2
-        sut = FasterRCnn(num_classes)
+        input_path = os.path.join(os.path.dirname(__file__), "..", "data", "clips")
+        sut = Mots17Dataset(root=input_path, annotation_path=input_path, frames_per_clip=30)
+        expected_num_frames = 900
+        expected_num_identities = 91
 
         # Act
-        sut()
+        video, label = sut[0]
 
-        # TODO: write assert
+        # Assert
+        self.assertEqual(expected_num_frames, len(video))
+        self.assertEqual(expected_num_identities, len(label))

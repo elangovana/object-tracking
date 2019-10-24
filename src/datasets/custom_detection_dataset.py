@@ -12,18 +12,14 @@
 #  express or implied. See the License for the specific language governing    *
 #  permissions and limitations under the License.                             *
 # *****************************************************************************
-from unittest import TestCase
-
-from models.faster_rcnn import FasterRCnn
+from torchvision.datasets import VisionDataset
 
 
-class TestFasterRCnn(TestCase):
-    def test_forward(self):
-        # Arrange
-        num_classes = 2
-        sut = FasterRCnn(num_classes)
+class CustomDetectionDataset(VisionDataset):
+    """
+    Custom base dataset
+    """
 
-        # Act
-        sut()
-
-        # TODO: write assert
+    @property
+    def num_classes(self):
+        raise NotImplementedError

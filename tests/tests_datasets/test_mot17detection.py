@@ -19,7 +19,7 @@ from datasets.mot17_detection import Mot17Detection
 
 
 class TestMot17Detection(TestCase):
-    def test_forward(self):
+    def test_getitem(self):
         # Arrange
         input_path = os.path.join(os.path.dirname(__file__), "..", "data", "clips")
         sut = Mot17Detection(root=input_path)

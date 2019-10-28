@@ -15,14 +15,14 @@
 import os
 from unittest import TestCase
 
-from datasets.mots17_detection_dataset import Mots17DetectionDataset
+from datasets.mot17_detection import Mot17Detection
 
 
-class TestMots17DetectionDataset(TestCase):
+class TestMot17Detection(TestCase):
     def test_forward(self):
         # Arrange
         input_path = os.path.join(os.path.dirname(__file__), "..", "data", "clips")
-        sut = Mots17DetectionDataset(root=input_path)
+        sut = Mot17Detection(root=input_path)
         expected_num_boxes = 2
 
         # Act
@@ -37,7 +37,7 @@ class TestMots17DetectionDataset(TestCase):
     def test_len(self):
         # Arrange
         input_path = os.path.join(os.path.dirname(__file__), "..", "data", "clips")
-        sut = Mots17DetectionDataset(root=input_path)
+        sut = Mot17Detection(root=input_path)
         expected_len = 11
 
         # Act

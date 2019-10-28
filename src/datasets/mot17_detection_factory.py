@@ -12,14 +12,30 @@
 #  express or implied. See the License for the specific language governing    *
 #  permissions and limitations under the License.                             *
 # *****************************************************************************
-from torchvision.datasets import VisionDataset
+from datasets.base_detection_dataset_factory import BaseDetectionDatasetFactory
+from datasets.mot17_detection import Mot17Detection
+from image_preprocessor import ImagePreprocessor
 
 
-class CustomDetectionDataset(VisionDataset):
+class Mot17DetectionFactory(BaseDetectionDatasetFactory):
     """
-    Custom base dataset
+    Mot17 dataset factory
     """
 
-    @property
-    def num_classes(self):
-        raise NotImplementedError
+    def get_dataset(self, image_dir):
+        """
+
+        :param image_dir:
+        :return:
+        """
+
+        frameRate = 30
+        seqLength = 900
+        imWidth = 1920
+        imHeight = 1080
+
+        ImagePreprocessor(original_width=imWidth, original_height=imHeight, min_img_size_w=imWidth / 4,
+                          min_img_size_h=imHeight / 4)
+        dataset = Mot17Detection(root=image_dir)
+
+        return dataset

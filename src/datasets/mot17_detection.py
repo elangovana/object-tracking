@@ -14,10 +14,10 @@
 # *****************************************************************************
 import os
 
-from datasets.custom_detection_dataset import CustomDetectionDataset
+from datasets.base_detection_dataset import BaseDetectionDataset
 
 
-class Mots17DetectionDataset(CustomDetectionDataset):
+class Mot17Detection(BaseDetectionDataset):
     """
     Loads the MOT17 Dataset
     The format of the labels is

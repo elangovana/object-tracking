@@ -14,6 +14,8 @@
 # *****************************************************************************
 import os
 
+import torch
+
 from datasets.base_detection_dataset import BaseDetectionDataset
 
 
@@ -36,6 +38,7 @@ class Mot17Detection(BaseDetectionDataset):
 
     def __init__(self, root, transform=None):
         super().__init__(root)
+        self.transform = transform
         extensions = ('jpg',)
         self._full_list_annotation = {}
 
@@ -51,7 +54,11 @@ class Mot17Detection(BaseDetectionDataset):
         if self.transform is not None:
             frame = self.transform(frame)
 
-        return frame, labels
+        tensor_labels = {}
+        for k, v in labels.items():
+            tensor_labels[k] = torch.tensor(v)
+        tensor_labels["boxes"] = tensor_labels["boxes"].float()
+        return frame, tensor_labels
 
     def _make_dataset(self, root, valid_extensions):
         images = []
@@ -64,13 +71,11 @@ class Mot17Detection(BaseDetectionDataset):
             image_dir = os.path.join(root, clip_name, "img1")
 
             # Load files from clip
-            clip_frames = []
             for i, image_frame_name in enumerate(sorted(os.listdir(image_dir))):
                 path = os.path.join(image_dir, image_frame_name)
                 if is_valid_file(path):
-                    clip_frames.append(path)
                     labels.append(self._get_labels(root, clip_name, image_frame_name))
-                    images.append(clip_frames)
+                    images.append(path)
 
         return images, labels
 
@@ -91,6 +96,14 @@ class Mot17Detection(BaseDetectionDataset):
                         :param root: The root directory
                         :param clip_name: the name of the clip ( the directory name containing the sequence of images for  a single clip and annotations, e.eg MOT17-11-SDP
 
+        target:
+        Annotation format : dict containing the following fields, so we can make use of built-in vision loss function for detection ,. See https://pytorch.org/tutorials/intermediate/torchvision_tutorial.html
+            boxes (FloatTensor[N, 4]): the coordinates of the N bounding boxes in [x0, y0, x1, y1] format, ranging from 0 to W and 0 to H
+            labels (Int64Tensor[N]): the label for each bounding box
+            image_id (Int64Tensor[1]): an image identifier. It should be unique between all the images in the dataset, and is used during evaluation
+            area (Tensor[N]): The area of the bounding box. This is used during evaluation with the COCO metric, to separate the metric scores between small, medium and large boxes.
+            iscrowd (UInt8Tensor[N]): instances with iscrowd=True will be ignored during evaluation.
+
         """
         gt = os.path.join(root, clip_name, "gt", "gt.txt")
         result = {}
@@ -107,18 +120,23 @@ class Mot17Detection(BaseDetectionDataset):
                 frame = int(annotations[0])
 
                 # id = annotations[1]
-                px = annotations[2]
-                py = annotations[3]
-                pw = annotations[4]
-                ph = annotations[5]
+                px = int(annotations[2])
+                py = int(annotations[3])
+                pw = int(annotations[4])
+                ph = int(annotations[5])
 
                 if frame not in result:
-                    result[frame] = {"px": [], "py": [], "pw": [], "ph": []}
+                    result[frame] = {"image_id": frame,
+                                     "boxes": [],
+                                     "labels": [],
+                                     "area": [],
+                                     "iscrowd": []}
 
                 annotation_for_frame = result.get(frame)
-                annotation_for_frame["px"].append(px)
-                annotation_for_frame["py"].append(py)
-                annotation_for_frame["pw"].append(pw)
-                annotation_for_frame["ph"].append(ph)
+
+                annotation_for_frame["boxes"].append([px, py, px + pw, py + ph])
+                annotation_for_frame["labels"].append(person_class)
+                annotation_for_frame["area"].append(pw * ph)
+                annotation_for_frame["iscrowd"].append(0)
 
         return result

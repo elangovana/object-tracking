@@ -16,14 +16,12 @@
 import logging
 import os
 
-from evaluator_factory_service_locator import EvalutorFactoryServiceLocator
-from model_resnet import ModelResnet
-from torch.optim import SGD
-from tripletloss import TripletLoss
 
+from torch.optim import SGD
+
+from models.faster_rcnn import FasterRCnn
 from train import Train
 from train_pipeline import TrainPipeline
-
 
 class TrainFactory:
     """
@@ -55,12 +53,9 @@ class TrainFactory:
 
     def get(self, train_dataset):
 
-        evaluator_factory = EvalutorFactoryServiceLocator().get_factory("EvaluationFactory")
-        evaluator = evaluator_factory.get_evaluator()
-
-        trainer = Train(evaluator, patience_epochs=self.patience_epochs, early_stopping=self.early_stopping,
+        trainer = Train(patience_epochs=self.patience_epochs, early_stopping=self.early_stopping,
                         epochs=self.epochs)
-        model = ModelResnet()
+        model = FasterRCnn(num_classes=train_dataset.num_classes)
 
         # Define optimiser
         learning_rate = float(self._get_value(self.additional_args, "learning_rate", ".0001"))
@@ -74,14 +69,12 @@ class TrainFactory:
         # Define loss function
         tripletloss_margin = float(self._get_value(self.additional_args, "tripletloss_margin", "2.5"))
         tripletloss_topk = int(self._get_value(self.additional_args, "tripletloss_topk", "25"))
-        loss = TripletLoss(margin=tripletloss_margin, topk=tripletloss_topk)
         # loss = nn.CrossEntropyLoss()
 
         train_pipeline = TrainPipeline(batch_size=self.batch_size,
                                        optimiser=optimiser,
                                        trainer=trainer,
                                        num_workers=self.num_workers,
-                                       loss_func=loss,
                                        model=model)
 
         return train_pipeline

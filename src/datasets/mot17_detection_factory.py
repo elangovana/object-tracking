@@ -34,8 +34,8 @@ class Mot17DetectionFactory(BaseDetectionDatasetFactory):
         imWidth = 1920
         imHeight = 1080
 
-        ImagePreprocessor(original_width=imWidth, original_height=imHeight, min_img_size_w=imWidth / 4,
-                          min_img_size_h=imHeight / 4)
-        dataset = Mot17Detection(root=image_dir)
+        preporcessor = ImagePreprocessor(original_width=imWidth, original_height=imHeight, min_img_size_w=imWidth // 4,
+                                         min_img_size_h=imHeight // 4)
+        dataset = Mot17Detection(root=image_dir, transform=preporcessor)
 
         return dataset

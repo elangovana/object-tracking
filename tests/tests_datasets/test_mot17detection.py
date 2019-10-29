@@ -24,15 +24,19 @@ class TestMot17Detection(TestCase):
         input_path = os.path.join(os.path.dirname(__file__), "..", "data", "clips")
         sut = Mot17Detection(root=input_path)
         expected_num_boxes = 2
+        index = 0
 
         # Act
-        video, label = sut[0]
+        video, label = sut[index]
 
         # Assert
-        self.assertEqual(expected_num_boxes, len(label["px"]))
-        self.assertEqual(expected_num_boxes, len(label["py"]))
-        self.assertEqual(expected_num_boxes, len(label["pw"]))
-        self.assertEqual(expected_num_boxes, len(label["ph"]))
+        self.assertEqual(expected_num_boxes, len(label["boxes"]))
+        self.assertEqual(expected_num_boxes, len(label["iscrowd"]))
+        self.assertEqual(expected_num_boxes, len(label["area"]))
+        self.assertEqual(index + 1, label["image_id"])
+        self.assertEqual(expected_num_boxes, len(label["labels"]))
+
+        self.assertIsInstance(video, str)
 
     def test_len(self):
         # Arrange

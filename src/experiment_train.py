@@ -17,8 +17,7 @@ import logging
 import os
 import sys
 
-from triplet_dataset_factory_service_locator import TripletDatasetFactoryServiceLocator
-
+from dataset_factory_service_locator import DatasetFactoryServiceLocator
 from train_factory import TrainFactory
 
 
@@ -30,7 +29,7 @@ class ExperimentTrain:
     def run(self, dataset_factory_name, train_dir, val_dir, out_dir, batch_size=32, epochs=10, patience_epoch=2,
             additional_args=None):
         # Set up dataset
-        datasetfactory = TripletDatasetFactoryServiceLocator().get_factory(dataset_factory_name)
+        datasetfactory = DatasetFactoryServiceLocator().get_factory(dataset_factory_name)
         train_dataset = datasetfactory.get(train_dir)
         val_dataset = datasetfactory.get(val_dir)
 
@@ -48,7 +47,7 @@ if __name__ == '__main__':
 
     parser.add_argument("--dataset",
                         help="The type of dataset",
-                        choices=TripletDatasetFactoryServiceLocator().factory_names, required=True)
+                        choices=DatasetFactoryServiceLocator().factory_names, required=True)
 
     parser.add_argument("--traindir",
                         help="The input train  data", default=os.environ.get("SM_CHANNEL_TRAIN", None))

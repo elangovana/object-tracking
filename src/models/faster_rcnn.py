@@ -14,7 +14,7 @@
 # *****************************************************************************
 import torchvision
 from torch import nn
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
+from torchvision.models.detection.faster_rcnn import FastRCNNPredictor, fasterrcnn_resnet50_fpn
 
 
 class FasterRCnn(nn.Module):
@@ -22,14 +22,12 @@ class FasterRCnn(nn.Module):
     def __init__(self, num_classes):
         super().__init__()
         # load a model pre-trained pre-trained on COCO
-        self.model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
+        self.model = fasterrcnn_resnet50_fpn(pretrained=True)
 
         # get number of input features for the classifier
         in_features = self.model.roi_heads.box_predictor.cls_score.in_features
         # replace the pre-trained head with a new one
         self.model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
 
-        print(self.model)
-
     def forward(self, *input):
-        pass
+        return self.model(*input)

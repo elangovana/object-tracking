@@ -21,7 +21,7 @@ from datasets.mot17_detection import Mot17Detection
 class TestMot17Detection(TestCase):
     def test_getitem(self):
         # Arrange
-        input_path = os.path.join(os.path.dirname(__file__), "..", "data", "clips")
+        input_path = os.path.join(os.path.dirname(__file__), "..", "data", "small_clips")
         sut = Mot17Detection(root=input_path)
         expected_num_boxes = 2
         index = 0
@@ -35,6 +35,29 @@ class TestMot17Detection(TestCase):
         self.assertEqual(expected_num_boxes, len(label["area"]))
         self.assertEqual(index + 1, label["image_id"])
         self.assertEqual(expected_num_boxes, len(label["labels"]))
+
+        self.assertIsInstance(video, str)
+
+    def test_getitem_lengthsmatch(self):
+        """
+        Testcase: Ensures that the length of each value in the returned label matches
+        :return:
+        """
+        # Arrange
+        input_path = os.path.join(os.path.dirname(__file__), "..", "data", "clips")
+        sut = Mot17Detection(root=input_path)
+
+        index = 0
+
+        # Act
+        video, label = sut[index]
+
+        # Assert
+        self.assertEqual(len(label["iscrowd"]), len(label["boxes"]))
+        self.assertEqual(len(label["iscrowd"]), len(label["iscrowd"]))
+        self.assertEqual(len(label["iscrowd"]), len(label["area"]))
+        self.assertEqual(index + 1, label["image_id"])
+        self.assertEqual(len(label["iscrowd"]), len(label["labels"]))
 
         self.assertIsInstance(video, str)
 

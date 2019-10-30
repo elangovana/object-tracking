@@ -26,6 +26,7 @@ class TestIoU(TestCase):
         , (0, 1, 0, 1, 1, 2, 1, 2, 0.0)
         , (0, 2, 0, 2, 1, 2, 1, 2, .25)
         , (1, 2, 1, 2, 0, 2, 0, 2, .25)
+        , (1, 2, 2, 3, 0, 2, 1, 3, .25)
           )
     @unpack
     def test_evaluate(self, gx1, gx2, gy1, gy2, px1, px2, py1, py2, expected_iou):

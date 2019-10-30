@@ -92,7 +92,5 @@ class TestIoUMatrix(TestCase):
         # Act
         actual = sut.evaluate(g, p)
 
-        print(actual)
-
         # Assert
         self.assertTrue(torch.all(expected_iou.eq(actual)))

@@ -25,7 +25,7 @@ class IoUMatrix(BaseDetectionEvaluator):
     def __init__(self):
         pass
 
-    def evaluate(self, g, p) -> float:
+    def evaluate(self, g: torch.tensor, p: torch.tensor) -> torch.tensor:
         assert len(g.shape) == 2, "Expect a 2 d tensor for ground truth"
         assert len(p.shape) == 2, "Expect a 2 d tensor for predicted boxes"
 

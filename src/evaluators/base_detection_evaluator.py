@@ -14,5 +14,5 @@
 # *****************************************************************************
 class BaseDetectionEvaluator:
 
-    def evaluate(self, gx1, gx2, gy1, gy2, px1, px2, py1, py2) -> float:
+    def evaluate(self, g, p) -> float:
         raise NotImplementedError

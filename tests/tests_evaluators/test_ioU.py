@@ -22,7 +22,11 @@ from evaluators.iou import IoU
 @ddt
 class TestIoU(TestCase):
 
-    @data((0, 1, 0, 1, 0, 1, 0, 1, 1.0))
+    @data((0, 1, 0, 1, 0, 1, 0, 1, 1.0)
+        , (0, 1, 0, 1, 1, 2, 1, 2, 0.0)
+        , (0, 2, 0, 2, 1, 2, 1, 2, .25)
+        , (1, 2, 1, 2, 0, 2, 0, 2, .25)
+          )
     @unpack
     def test_evaluate(self, gx1, gx2, gy1, gy2, px1, px2, py1, py2, expected_iou):
         # Arrange
@@ -32,4 +36,4 @@ class TestIoU(TestCase):
         actual = sut.evaluate(gx1, gx2, gy1, gy2, px1, px2, py1, py2)
 
         # Assert
-        self.assertEqual(expected_iou, actual)
+        self.assertEqual(expected_iou, round(actual, 2))

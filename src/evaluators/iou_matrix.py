@@ -46,13 +46,13 @@ class IoUMatrix(BaseDetectionEvaluator):
         start_y = torch.max(g[:, :, 2], p[:, 2])
         end_y = torch.min(g[:, :, 3], p[:, 3])
 
-        interaction_area = (end_x - start_x) * (end_y - start_y)
+        intersection_area = (end_x - start_x) * (end_y - start_y)
 
         area_g = (g[:, :, 1] - g[:, :, 0]) * (g[:, :, 3] - g[:, :, 2])
         area_p = (p[:, 1] - p[:, 0]) * (p[:, 3] - p[:, 2])
 
-        union_area = area_g + area_p - interaction_area
+        union_area = area_g + area_p - intersection_area
 
-        iou = interaction_area / union_area
+        iou = intersection_area / union_area
 
         return iou

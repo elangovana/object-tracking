@@ -14,16 +14,29 @@
 # *****************************************************************************
 from unittest import TestCase
 
+import torch
+
 from models.faster_rcnn import FasterRCnn
 
 
 class TestFasterRCnn(TestCase):
     def test_forward(self):
+        """
+        Simple test to make sure that the code executes
+        :return:
+        """
         # Arrange
         num_classes = 2
         sut = FasterRCnn(num_classes)
+        input = torch.rand((1, 3, 224, 224))
+        target = [{"image_id": 1,
+                   "boxes": torch.tensor([[1, 2, 3, 4]]).float(),
+                   "labels": torch.tensor([1]),
+                   "area": torch.tensor([1.0]),
+                   "iscrowd": torch.tensor([0])}]
 
         # Act
-        sut()
+        actual = sut(input, target)
 
-        # TODO: write assert
+        # Assert
+        self.assertIsNotNone(actual)

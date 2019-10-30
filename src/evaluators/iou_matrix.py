@@ -19,7 +19,7 @@ from evaluators.base_detection_evaluator import BaseDetectionEvaluator
 
 class IoUMatrix(BaseDetectionEvaluator):
     """
-    Calculates intersection over union
+    Calculates intersection over union pairwise between the ground truth and predictions matrix
     """
 
     def __init__(self):

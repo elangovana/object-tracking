@@ -35,7 +35,7 @@ class IoU(BaseDetectionEvaluator):
         start_y = max(gy1, py1)
         end_y = min(gy2, py2)
 
-        interaction_area = (end_x - start_x) * (end_y - start_x)
+        interaction_area = (end_x - start_x) * (end_y - start_y)
 
         area_g = (gx2 - gx1) * (gy2 - gy1)
         area_p = (px2 - px1) * (py2 - py1)

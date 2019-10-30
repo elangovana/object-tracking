@@ -40,9 +40,11 @@ class IoUMatrix(BaseDetectionEvaluator):
 
         g = g.unsqueeze(1)
 
+        # Overlap in x
         start_x = torch.max(g[:, :, 0], p[:, 0])
         end_x = torch.min(g[:, :, 1], p[:, 1])
 
+        # Overlap in y
         start_y = torch.max(g[:, :, 2], p[:, 2])
         end_y = torch.min(g[:, :, 3], p[:, 3])
 

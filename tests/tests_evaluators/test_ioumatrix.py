@@ -37,7 +37,7 @@ class TestIoUMatrix(TestCase):
         p = torch.tensor([p]).float()
 
         # Act
-        actual = sut.evaluate(g, p)
+        actual = sut(g, p)
 
         # Assert
         self.assertEqual(expected_iou, round(actual.item(), 2))
@@ -64,7 +64,7 @@ class TestIoUMatrix(TestCase):
         p = torch.tensor(p).float()
 
         # Act
-        actual = sut.evaluate(g, p)
+        actual = sut(g, p)
 
         # Assert
         self.assertTrue(torch.all(expected_iou.eq(actual)))
@@ -90,7 +90,7 @@ class TestIoUMatrix(TestCase):
         p = torch.tensor(p).float()
 
         # Act
-        actual = sut.evaluate(g, p)
+        actual = sut(g, p)
 
         # Assert
         self.assertTrue(torch.all(expected_iou.eq(actual)))

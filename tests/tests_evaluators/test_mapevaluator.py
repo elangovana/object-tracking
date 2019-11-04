@@ -30,7 +30,7 @@ class TestMapEvaluator(TestCase):
         # Arrange
         iou_evaluator = MagicMock()
 
-        iou_evaluator.evaluate.side_effect = lambda t, p: torch.tensor([[1.0]])
+        iou_evaluator.side_effect = lambda t, p: torch.tensor([[1.0]])
 
         sut = MAPEvaluator(iou_evaluator)
 
@@ -49,7 +49,7 @@ class TestMapEvaluator(TestCase):
         expected_map = 1
 
         # Act
-        actual = sut.evaluate(target, predicted)
+        actual = sut(target, predicted)
 
         # Assert
         self.assertEqual(expected_map, actual)
@@ -62,7 +62,7 @@ class TestMapEvaluator(TestCase):
         # Arrange
         iou_evaluator = MagicMock()
 
-        iou_evaluator.evaluate.side_effect = lambda t, p: torch.tensor([[1.0, 0]])
+        iou_evaluator.side_effect = lambda t, p: torch.tensor([[1.0, 0]])
 
         sut = MAPEvaluator(iou_evaluator)
 
@@ -81,7 +81,7 @@ class TestMapEvaluator(TestCase):
         expected_map = .667
 
         # Act
-        actual = sut.evaluate(target, predicted)
+        actual = sut(target, predicted)
 
         # Assert
         self.assertEqual(round(expected_map, 2), round(actual, 2))

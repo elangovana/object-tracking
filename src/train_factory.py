@@ -19,9 +19,11 @@ import os
 
 from torch.optim import SGD
 
+from evaluators.map_evaluator import MAPEvaluator
 from models.faster_rcnn import FasterRCnn
 from train import Train
 from train_pipeline import TrainPipeline
+from evaluators.iou_matrix import IoUMatrix
 
 class TrainFactory:
     """
@@ -52,9 +54,9 @@ class TrainFactory:
         return value
 
     def get(self, train_dataset):
-
+        evaluator = MAPEvaluator(ioumatrix_evaluator=IoUMatrix())
         trainer = Train(patience_epochs=self.patience_epochs, early_stopping=self.early_stopping,
-                        epochs=self.epochs)
+                        epochs=self.epochs, evaluator=evaluator)
         model = FasterRCnn(num_classes=train_dataset.num_classes)
 
         # Define optimiser

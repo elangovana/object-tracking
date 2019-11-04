@@ -30,7 +30,7 @@ class MAPEvaluator(BaseDetectionEvaluator):
         self.iou_threshold = iou_threshold
         self.ioumatrix_evaluator = ioumatrix_evaluator
 
-    def evaluate(self, g, p):
+    def __call__(self, g, p):
         """
 
         :param g: g is a list of dict. One dict represents the annotations of a singe image
@@ -49,7 +49,7 @@ class MAPEvaluator(BaseDetectionEvaluator):
         fn = []
         gt_classes = []
         for i, (gi, pi) in enumerate(zip(g, p)):
-            iou_g_vs_p = self.ioumatrix_evaluator.evaluate(gi["boxes"], pi["boxes"])
+            iou_g_vs_p = self.ioumatrix_evaluator(gi["boxes"], pi["boxes"])
 
             # # Find the max area for each gt object
             # best_match_iou = torch.max(iou_g_vs_p, dim=1)[0]

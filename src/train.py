@@ -24,8 +24,9 @@ from result_writer import ResultWriter
 class Train:
 
     def __init__(self, device=None, snapshotter=None, early_stopping=True, patience_epochs=10, epochs=10,
-                 results_writer=None):
+                 results_writer=None, evaluator=None):
         # TODO: currently only single GPU
+        self.evaluator = evaluator
         self.results_writer = results_writer
         self.epochs = epochs
         self.patience_epochs = patience_epochs
@@ -187,15 +188,12 @@ class Train:
                 #         "All outputs are NaNs in loss in batch{}.. This could be because of exploding or vanishing gradients".format(
                 #             i))
 
-                predictions.append(predidcted_batch)
+                predictions.extend(predidcted_batch)
+                target_items.extend(targets_transformed)
 
-        # predictions = torch.cat(predictions, dim=0)
-        # target_items = torch.cat(target_items, dim=0)
+        score = self._get_score(predictions, target_items)
 
-        #  score = self._get_score(predictions, target_items)
-        losses = torch.Tensor(losses)
+        return predictions, target_items, score
 
-        return predictions, target_items
-
-    # def _get_score(self, predicted, target):
-    #     return self.evaluator(predicted, target)
+    def _get_score(self, predicted, target):
+        return self.evaluator(predicted, target)

@@ -23,18 +23,18 @@ class IoUMatrix():
     def __init__(self):
         pass
 
-    def evaluate(self, g: torch.tensor, p: torch.tensor) -> torch.tensor:
+    def __call__(self, g: torch.tensor, p: torch.tensor) -> torch.tensor:
         assert len(g.shape) == 2, "Expect a 2 d tensor for ground truth"
         assert len(p.shape) == 2, "Expect a 2 d tensor for predicted boxes"
 
         assert g.shape[1] == 4, "Expected 2d tensor of shape ( :, 4) but this tensor has shape {}".format(g.shape)
         assert p.shape[1] == 4, "Expected 2d tensor of shape ( :, 4) but this tensor has shape {}".format(p.shape)
 
-        assert torch.all(g[:, 0] < g[:, 1]).item(), "Expect all items in index g[:,0] to be less than index g[:,1]"
-        assert torch.all(g[:, 2] < g[:, 3]).item(), "Expect all items in index g[:,2] to be less than index g[:,3]"
+        assert torch.all(g[:, 0] <= g[:, 1]).item(), "Expect all items in index g[:,0] to be less than index g[:,1]"
+        assert torch.all(g[:, 2] <= g[:, 3]).item(), "Expect all items in index g[:,2] to be less than index g[:,3]"
 
-        assert torch.all(p[:, 0] < p[:, 1]).item(), "Expect all items in index p[:,0] to be less than index p[:,1]"
-        assert torch.all(p[:, 2] < p[:, 3]).item(), "Expect all items in index p[:,2] to be less than index p[:,3]"
+        assert torch.all(p[:, 0] <= p[:, 1]).item(), "Expect all items in index p[:,0] to be less than index p[:,1]"
+        assert torch.all(p[:, 2] <= p[:, 3]).item(), "Expect all items in index p[:,2] to be less than index p[:,3]"
 
         g = g.unsqueeze(1)
 

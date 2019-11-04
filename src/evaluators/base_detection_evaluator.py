@@ -12,10 +12,9 @@
 #  express or implied. See the License for the specific language governing    *
 #  permissions and limitations under the License.                             *
 # *****************************************************************************
-import torch
 
 
 class BaseDetectionEvaluator:
 
-    def evaluate(self, g: list, p: list) -> torch.tensor:
+    def __call__(self, g: list, p: list) -> float:
         raise NotImplementedError

@@ -17,5 +17,5 @@ import torch
 
 class BaseDetectionEvaluator:
 
-    def evaluate(self, g: torch.tensor, p: torch.tensor) -> torch.tensor:
+    def evaluate(self, g: list, p: list) -> torch.tensor:
         raise NotImplementedError

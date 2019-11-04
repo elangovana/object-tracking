@@ -14,10 +14,8 @@
 # *****************************************************************************
 import torch
 
-from evaluators.base_detection_evaluator import BaseDetectionEvaluator
 
-
-class IoUMatrix(BaseDetectionEvaluator):
+class IoUMatrix():
     """
     Calculates intersection over union pairwise between the ground truth and predictions matrix
     """

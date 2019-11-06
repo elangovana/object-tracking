@@ -34,7 +34,7 @@ class TestIoU(TestCase):
         sut = IoU()
 
         # Act
-        actual = sut.evaluate(gx1, gx2, gy1, gy2, px1, px2, py1, py2)
+        actual = sut.evaluate(gx1, gy1, gx2, gy2, px1, py1, px2, py2)
 
         # Assert
         self.assertEqual(expected_iou, round(actual, 2))

@@ -22,7 +22,7 @@ class IoU:
     def __init__(self):
         pass
 
-    def evaluate(self, gx1, gx2, gy1, gy2, px1, px2, py1, py2) -> float:
+    def evaluate(self, gx1, gy1, gx2, gy2, px1, py1, px2, py2) -> float:
         assert gx1 < gx2
         assert gy1 < gy2
         assert px1 < px2

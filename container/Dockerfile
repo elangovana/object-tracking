@@ -8,7 +8,7 @@ FROM ${AWS_PYTORCH_SAGEMAKER_ECR_ACCOUNT}.dkr.ecr.$REGION.amazonaws.com/sagemake
 
 COPY ./src/requirements_prod.txt  /tmp
 
-RUN wget https://repo.anaconda.com/archive/Anaconda3-2019.10-MacOSX-x86_64.sh
+RUN curl -o Anaconda3-2019.10-MacOSX-x86_64.sh  https://repo.anaconda.com/archive/Anaconda3-2019.10-MacOSX-x86_64.sh
 
 RUN bash Anaconda-latest-Linux-x86_64.sh
 

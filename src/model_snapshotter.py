@@ -29,8 +29,8 @@ class Snapshotter(object):
 
     def save(self, model, output_dir, prefix="Snapshot"):
         snapshot_prefix = os.path.join(output_dir, prefix)
-        snapshot_path = snapshot_prefix + 'model.pt'
+        snapshot_path = snapshot_prefix + 'model.pth'
 
         self.logger.info("Snappshotting model to {} ".format(snapshot_path))
 
-        torch.save(model, snapshot_path)
+        torch.save(model.state_dict(), snapshot_path)

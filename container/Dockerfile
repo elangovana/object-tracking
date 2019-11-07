@@ -10,7 +10,7 @@ COPY ./src/requirements_prod.txt  /tmp
 
 RUN curl -o  /tmp/Anaconda3.sh  https://repo.anaconda.com/archive/Anaconda3-2019.10-Linux-x86_64.sh
 
-RUN bash  /tmp/Anaconda3.sh
+RUN bash  /tmp/Anaconda3.sh -b -p  /conda
 
 RUN rm  /tmp/Anaconda3.sh
 

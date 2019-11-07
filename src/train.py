@@ -66,7 +66,6 @@ class Train:
 
         result_logs = []
 
-
         for e in range(self.epochs):
             total_loss = 0
             for i, (images, targets) in enumerate(train_data):
@@ -78,7 +77,6 @@ class Train:
                 for k, v in targets.items():
                     for i, v_i in enumerate(v):
                         targets_transformed[i][k] = v_i
-
 
                 # Forward pass
                 loss_dict = model(images, targets_transformed)
@@ -98,41 +96,41 @@ class Train:
 
                 total_loss += loss.item()
 
-            train_target, train_predictions = self._compute_validation_loss(train_data, model)
+            train_target, train_predictions, train_score = self._compute_validation_loss(train_data, model)
 
             # Validation loss
-            val_target, val_predictions = self._compute_validation_loss(val_data, model)
+            val_target, val_predictions, val_score = self._compute_validation_loss(val_data, model)
 
-            # # Save snapshots
-            # if best_score is None or val_score > best_score:
-            #     self.logger.info(
-            #         "Snapshotting as current score {} is > previous best {}".format(val_score, best_score))
-            #     self.snapshotter.save(model, output_dir=output_dir, prefix="snapshot_")
-            #     best_score = val_score
-            #     best_loss = val_loss
-            #     # Reset patience if loss decreases
-            #     patience = 0
-            # # score is the same but lower loss
-            # elif val_score == best_score and best_loss is not None and val_loss < best_loss:
-            #     self.logger.info(
-            #         "Snapshotting as current loss {} is < previous best {} for score {}".format(val_loss, best_loss,
-            #                                                                                     val_score))
-            #     self.snapshotter.save(model, output_dir=output_dir, prefix="snapshot_")
-            #     best_loss = val_loss
-            #     # Reset patience if loss decreases
-            #     patience = 0
-            # else:
-            #     # No increase in best loss so increase patience counter
-            #     patience += 1
-            #
+            # Save snapshots
+            if best_score is None or val_score > best_score:
+                self.logger.info(
+                    "Snapshotting as current score {} is > previous best {}".format(val_score, best_score))
+                self.snapshotter.save(model, output_dir=output_dir, prefix="snapshot_")
+                best_score = val_score
+                # best_loss = val_loss
+                # Reset patience if loss decreases
+                patience = 0
+                # # score is the same but lower loss
+                # elif val_score == best_score and best_loss is not None and val_loss < best_loss:
+                #     self.logger.info(
+                #         "Snapshotting as current loss {} is < previous best {} for score {}".format(val_loss, best_loss,
+                #                                                                                     val_score))
+                #     self.snapshotter.save(model, output_dir=output_dir, prefix="snapshot_")
+                #     best_loss = val_loss
+                #     # Reset patience if loss decreases
+                #     patience = 0
+                # else:
+                # No increase in best loss so increase patience counter
+                patience += 1
+
             # print("###score: train_loss### {}".format(train_loss))
             # print("###score: val_loss### {}".format(val_loss))
             # print("###score: val_loss_std### {}".format(val_loss_std))
             # print("###score: train_loss_std### {}".format(train_loss_std))
-            # print("###score: train_score### {}".format(train_score))
-            # print("###score: val_score### {}".format(val_score))
-            #
-            # # print and store run logs
+            print("###score: train_score### {}".format(train_score))
+            print("###score: val_score### {}".format(val_score))
+
+            # print and store run logs
             # self.logger.info(
             #     "epoch: {}, train_loss {}, val_loss {}, val_loss_mean {}, train_loss_mean {}, val_loss_std {}, train_loss_std {}, train_score {}, val_score {}".format(
             #         e, train_loss,
@@ -145,6 +143,15 @@ class Train:
             #                     val_loss_mean, train_loss_mean, val_loss_std, train_loss_std,
             #                     train_score,
             #                     val_score])
+
+            self.logger.info(
+                "epoch: {},  train_score {}, val_score {}".format(
+                    e,
+                    train_score,
+                    val_score))
+            result_logs.append([e,
+                                train_score,
+                                val_score])
 
             # Early stopping
             if self.early_stopping and patience > self.patience_epochs:
@@ -191,9 +198,9 @@ class Train:
                 predictions.extend(predidcted_batch)
                 target_items.extend(targets_transformed)
 
-        score = self._get_score(predictions, target_items)
+        score = self._get_score(target_items, predictions)
 
         return predictions, target_items, score
 
-    def _get_score(self, predicted, target):
-        return self.evaluator(predicted, target)
+    def _get_score(self, target, predicted):
+        return self.evaluator(target, predicted)

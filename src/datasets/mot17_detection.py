@@ -22,12 +22,27 @@ from datasets.base_detection_dataset import BaseDetectionDataset
 class Mot17Detection(BaseDetectionDataset):
     """
     Loads the MOT17 Dataset
+
+    @article{MOT16,
+	title = {{MOT}16: {A} Benchmark for Multi-Object Tracking},
+	shorttitle = {MOT16},
+	url = {http://arxiv.org/abs/1603.00831},
+	journal = {arXiv:1603.00831 [cs]},
+	author = {Milan, A. and Leal-Taix\'{e}, L. and Reid, I. and Roth, S. and Schindler, K.},
+	month = mar,
+	year = {2016},
+	note = {arXiv: 1603.00831},
+	keywords = {Computer Science - Computer Vision and Pattern Recognition}
+}
+
     The format of the labels is
     <frame>, <id>, <bb left>, <bb top>, <bb width>, <bb height>, <conf>, <class>, <visibility>
 
     For detection only id is -1,  conf value contains the detection confidence.
 
     Expect the files to be format:
+
+
 
     """
 

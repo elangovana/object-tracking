@@ -8,6 +8,8 @@ FROM ${AWS_PYTORCH_SAGEMAKER_ECR_ACCOUNT}.dkr.ecr.$REGION.amazonaws.com/sagemake
 
 COPY ./src/requirements_prod.txt  /tmp
 
+RUN conda install pyarrow
+
 RUN pip install -r /tmp/requirements_prod.txt && rm /tmp/requirements_prod.txt
 
 

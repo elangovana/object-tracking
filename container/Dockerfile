@@ -8,18 +8,6 @@ FROM ${AWS_PYTORCH_SAGEMAKER_ECR_ACCOUNT}.dkr.ecr.$REGION.amazonaws.com/sagemake
 
 COPY ./src/requirements_prod.txt  /tmp
 
-RUN curl -o  /tmp/Anaconda3.sh  https://repo.anaconda.com/archive/Anaconda3-2019.10-Linux-x86_64.sh
-
-RUN bash  /tmp/Anaconda3.sh -b -p  /conda
-
-RUN rm  /tmp/Anaconda3.sh
-
-
-ENV PATH /conda/bin:$PATH
-RUN ls -l /conda
-RUN conda install -c conda-forge pyarrow
-
-
 RUN pip install -r /tmp/requirements_prod.txt && rm /tmp/requirements_prod.txt
 
 

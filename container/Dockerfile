@@ -15,7 +15,8 @@ RUN bash  /tmp/Anaconda3.sh -b -p  /conda
 RUN rm  /tmp/Anaconda3.sh
 
 
-ENV PATH $PATH:/conda/bin
+ENV PATH /conda/bin:$PATH
+RUN ls -l /conda
 RUN conda install -c conda-forge pyarrow
 
 

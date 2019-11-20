@@ -30,8 +30,8 @@ class ExperimentTrain:
             additional_args=None):
         # Set up dataset
         datasetfactory = DatasetFactoryServiceLocator().get_factory(dataset_factory_name)
-        train_dataset = datasetfactory.get(train_dir)
-        val_dataset = datasetfactory.get(val_dir)
+        train_dataset = datasetfactory.get_dataset(train_dir)
+        val_dataset = datasetfactory.get_dataset(val_dir)
 
         # Get trainpipeline
         factory = TrainFactory(num_workers=None, epochs=epochs, batch_size=batch_size, early_stopping=True,

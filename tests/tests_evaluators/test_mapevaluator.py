@@ -54,6 +54,82 @@ class TestMapEvaluator(TestCase):
         # Assert
         self.assertEqual(expected_map, actual)
 
+    def test_confusion_matrix_single_images(self):
+        """
+        Test simple case for confusion matrix with just one image
+        :return:
+        """
+        # Arrange
+        iou_evaluator = MagicMock()
+
+        iou_evaluator.side_effect = lambda t, p: torch.tensor([[1.0, 0, 0]])
+
+        sut = MAPEvaluator(iou_evaluator)
+
+        target = [{"image_id": 1,
+                   "boxes": torch.tensor([[1, 2, 3, 4]]).float(),
+                   "labels": torch.tensor([1]),
+                   "area": torch.tensor([1.0]),
+                   "iscrowd": torch.tensor([0])
+                   }]
+
+        predicted = [{"image_id": 1,
+                      "boxes": torch.tensor([[1, 2, 3, 4],
+                                             [4, 5, 6, 7],
+                                             [11, 12, 13, 14]]).float(),
+                      "labels": torch.tensor([1, 1, 1]),
+                      "scores": torch.tensor([1.0, 1.0, 1.0])}]
+
+        expected_tp, expected_fp, actual_fn = 1, 2, 0
+
+        # Act
+        actual_tp, actual_fp, actual_fn = sut.get_confusion_matix(target, predicted, class_index=1)
+
+        # Assert
+        self.assertEqual(expected_tp, len(actual_tp))
+        self.assertEqual(expected_fp, len(actual_fp))
+
+    def test_confusion_matrix_two_gt_boxes(self):
+        """
+        Test simple case for confusion matrix with just one image
+        :return:
+        """
+        # Arrange
+        iou_evaluator = MagicMock()
+
+        iou_evaluator.side_effect = lambda t, p: torch.tensor([[1.0, 0, 0.0]
+                                                                  , [0.0, 0, 1.0]])
+
+        sut = MAPEvaluator(iou_evaluator)
+
+        target = [{"image_id": 1,
+                   "boxes": torch.tensor([[1, 2, 3, 4],
+                                          [10, 12, 13, 14]
+                                          ]).float(),
+                   "labels": torch.tensor([1, 1]),
+                   "area": torch.tensor([1.0, 1.0]),
+                   "iscrowd": torch.tensor([0, 0])
+                   }
+                  ]
+
+        predicted = [{"image_id": 1,
+                      "boxes": torch.tensor([[1, 2, 3, 4],
+                                             [4, 5, 6, 7],
+                                             [10, 12, 13, 14]]).float(),
+                      "labels": torch.tensor([1, 1, 1]),
+                      "scores": torch.tensor([1.0, 1.0, 1.0])}
+
+                     ]
+
+        expected_tp, expected_fp, actual_fn = 2, 1, 0
+
+        # Act
+        actual_tp, actual_fp, actual_fn = sut.get_confusion_matix(target, predicted, class_index=1)
+
+        # Assert
+        self.assertEqual(expected_tp, len(actual_tp))
+        self.assertEqual(expected_fp, len(actual_fp))
+
     def test_evaluate_2_boxes(self):
         """
         Test case where 2 boxes were predicted and only one matches

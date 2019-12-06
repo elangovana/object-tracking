@@ -12,6 +12,8 @@
 #  express or implied. See the License for the specific language governing    *
 #  permissions and limitations under the License.                             *
 # *****************************************************************************
+import logging
+
 import torch
 
 from evaluators.base_detection_evaluator import BaseDetectionEvaluator
@@ -30,6 +32,10 @@ class MAPEvaluator(BaseDetectionEvaluator):
         self.iou_threshold = iou_threshold
         self.ioumatrix_evaluator = ioumatrix_evaluator
 
+    @property
+    def logger(self):
+        return logging.getLogger(__name__)
+
     def __call__(self, g, p):
         """
 
@@ -40,9 +46,29 @@ class MAPEvaluator(BaseDetectionEvaluator):
 
         assert len(g) == len(p), "The length of target {} and predicted {} mismatch ".format(g, p)
 
+        # get unique ground truth classes
+        classes = []
+        for gi in g:
+            classes.append(gi["labels"])
+
+        classes = set(classes)
+
+        # TODO: extend to more than one class
+        tp, fp, fn = self.get_confusion_matix(g, p, 1)
+
+        average_precision = self._get_average_precision(tp, fp, fn)
+
+        # Returns best Iou and the scores
+        return average_precision
+
+    def get_confusion_matix(self, g, p, class_index):
         target_class = []
         predicted_class = []
         predicted_score = []
+
+        # True Positive (TP): A correct detection. Detection with IOU ≥ threshold
+        # False Positive (FP): A wrong detection. Detection with IOU < threshold
+        # False Negative (FN): A ground truth not detected
 
         tp = []
         fp = []
@@ -50,6 +76,8 @@ class MAPEvaluator(BaseDetectionEvaluator):
         gt_classes = []
         for i, (gi, pi) in enumerate(zip(g, p)):
             iou_g_vs_p = self.ioumatrix_evaluator(gi["boxes"], pi["boxes"])
+
+            self.logger.debug("Number of boxes predicted {}".format(len(pi["boxes"])))
 
             # # Find the max area for each gt object
             # best_match_iou = torch.max(iou_g_vs_p, dim=1)[0]
@@ -73,7 +101,8 @@ class MAPEvaluator(BaseDetectionEvaluator):
             # class_g_threshold = torch.masked_select(gi["labels"], mask_gt_threshold_index[0, :])
 
             # class_p_threshold = torch.masked_select(p["labels"], mask_gt_threshold_index[1, :])
-            used_index = set()
+            used_predicted_indices = set()
+            used_gt_indices = set()
             for i in range(iou_g_vs_p.shape[0]):
                 gt_row = iou_g_vs_p[i]
                 best_match_iou = torch.max(gt_row, dim=0)[0]
@@ -87,7 +116,7 @@ class MAPEvaluator(BaseDetectionEvaluator):
                 confidence = pi["scores"][best_match_p_indx]
 
                 # False negative when index has already been matched against a different gt, so matching object for this gt
-                if best_match_p_indx.item() in used_index:
+                if best_match_p_indx.item() in used_predicted_indices:
                     fn.append([confidence, best_match_g_class])
                     continue
 
@@ -96,20 +125,25 @@ class MAPEvaluator(BaseDetectionEvaluator):
                 else:
                     fp.append([confidence, best_match_p_class])
 
-                used_index = used_index.union([best_match_p_indx.item()])
+                used_predicted_indices = used_predicted_indices.union([best_match_p_indx.item()])
+                used_gt_indices = used_gt_indices.union([i])
 
             # For extra images in pred
-            for idx in list(set(range(iou_g_vs_p.shape[1])) - used_index):
+            predicted_count = iou_g_vs_p.shape[1]
+            for idx in list(set(range(predicted_count)) - used_predicted_indices):
                 p_class = pi["labels"][idx]
 
                 confidence = pi["scores"][idx]
 
-                fn.append([confidence, p_class])
+                fp.append([confidence, p_class])
 
-        average_precision = self._get_average_precision(tp, fp, fn)
+            # For images with no predictions
+            gt_count = iou_g_vs_p.shape[0]
+            for idx in list(set(range(gt_count)) - used_gt_indices):
+                g_class = gi["labels"][idx]
+                fp.append([0, g_class])
 
-        # Returns best Iou and the scores
-        return average_precision
+        return tp, fp, fn
 
     def _get_average_precision(self, tp, fp, fn):
         classes_score = {}

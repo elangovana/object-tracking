@@ -7,8 +7,9 @@ FROM ${AWS_PYTORCH_SAGEMAKER_ECR_ACCOUNT}.dkr.ecr.$REGION.amazonaws.com/sagemake
 # Else Sagemaker container framework will NOT download source code from s3 to this directory
 
 COPY ./src/requirements_prod.txt  /tmp
+COPY ./src/requirements_base.txt  /tmp
 
-RUN pip install -r /tmp/requirements_prod.txt && rm /tmp/requirements_prod.txt
+RUN  pip install -r /tmp/requirements_base.txt && pip install -r /tmp/requirements_prod.txt && rm /tmp/requirements_prod.txt && rm /tmp/requirements_base.txt
 
 
 

@@ -73,13 +73,14 @@ class Train:
                 model.train()
 
                 images = list(image.to(self.device) for image in images)
-                targets_transformed = [{} for i in range(len(images))]
-                for k, v in targets.items():
-                    for i, v_i in enumerate(v):
-                        targets_transformed[i][k] = v_i
+                targets = [{k: v.to(self.device) for k, v in t.items()} for t in targets]
+                # [{} for i in range(len(images))]
+                # for k, v in targets.items():
+                #     for i, v_i in enumerate(v):
+                #         targets_transformed[i][k] = v_i
 
                 # Forward pass
-                loss_dict = model(images, targets_transformed)
+                loss_dict = model(images, targets)
 
                 self.logger.debug("Computing loss function complete ")
 
@@ -96,6 +97,7 @@ class Train:
 
                 total_loss += loss.item()
 
+            self._compute_validation_loss(train_data, model)
             train_target, train_predictions, train_score = self._compute_validation_loss(train_data, model)
 
             # Validation loss
@@ -129,6 +131,7 @@ class Train:
             # print("###score: train_loss_std### {}".format(train_loss_std))
             print("###score: train_score### {}".format(train_score))
             print("###score: val_score### {}".format(val_score))
+
 
             # print and store run logs
             # self.logger.info(
@@ -176,16 +179,17 @@ class Train:
             for i, (images, targets) in enumerate(data):
 
                 images = list(image.to(self.device) for image in images)
-                targets_transformed = [{} for i in range(len(images))]
-                for k, v in targets.items():
-                    for i, v_i in enumerate(v):
-                        targets_transformed[i][k] = v_i
+                targets = [{k: v.to(self.device) for k, v in t.items()} for t in targets]
+                # [{} for i in range(len(images))]
+                # for k, v in targets.items():
+                #     for i, v_i in enumerate(v):
+                #         targets_transformed[i][k] = v_i
 
                 #   target_items.append(targets)
 
                 # Forward pass
                 # in eval model only gets the predictions and not loss..
-                predidcted_batch = model(images, targets_transformed)
+                predidcted_batch = model(images, targets)
 
                 self.logger.debug("Computing loss function: ")
 
@@ -196,7 +200,7 @@ class Train:
                 #             i))
 
                 predictions.extend(predidcted_batch)
-                target_items.extend(targets_transformed)
+                target_items.extend(targets)
 
         score = self._get_score(target_items, predictions)
 

@@ -54,7 +54,7 @@ class TrainFactory:
         return value
 
     def get(self, train_dataset):
-        evaluator = MAPEvaluator(ioumatrix_evaluator=IoUMatrix())
+        evaluator = MAPEvaluator()
         trainer = Train(patience_epochs=self.patience_epochs, early_stopping=self.early_stopping,
                         epochs=self.epochs, evaluator=evaluator)
         model = FasterRCnn(num_classes=train_dataset.num_classes)

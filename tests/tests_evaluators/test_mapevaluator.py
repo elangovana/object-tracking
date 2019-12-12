@@ -28,107 +28,28 @@ class TestMapEvaluator(TestCase):
         :return:
         """
         # Arrange
-        iou_evaluator = MagicMock()
 
-        iou_evaluator.side_effect = lambda t, p: torch.tensor([[1.0]])
+        sut = MAPEvaluator()
 
-        sut = MAPEvaluator(iou_evaluator)
-
-        target = [{"image_id": 1,
+        target = [{"image_id": torch.tensor(1),
                    "boxes": torch.tensor([[1, 2, 3, 4]]).float(),
                    "labels": torch.tensor([1]),
-                   "area": torch.tensor([1.0]),
+
                    "iscrowd": torch.tensor([0])
                    }]
 
-        predicted = [{"image_id": 1,
+        predicted = [{"image_id": torch.tensor(1),
                       "boxes": torch.tensor([[1, 2, 3, 4]]).float(),
                       "labels": torch.tensor([1]),
                       "scores": torch.tensor([1.0])
                       }]
-        expected_map = 1
+        expected_map_score = 1.0
 
         # Act
         actual = sut(target, predicted)
 
         # Assert
-        self.assertEqual(expected_map, actual)
-
-    def test_confusion_matrix_single_images(self):
-        """
-        Test simple case for confusion matrix with just one image
-        :return:
-        """
-        # Arrange
-        iou_evaluator = MagicMock()
-
-        iou_evaluator.side_effect = lambda t, p: torch.tensor([[1.0, 0, 0]])
-
-        sut = MAPEvaluator(iou_evaluator)
-
-        target = [{"image_id": 1,
-                   "boxes": torch.tensor([[1, 2, 3, 4]]).float(),
-                   "labels": torch.tensor([1]),
-                   "area": torch.tensor([1.0]),
-                   "iscrowd": torch.tensor([0])
-                   }]
-
-        predicted = [{"image_id": 1,
-                      "boxes": torch.tensor([[1, 2, 3, 4],
-                                             [4, 5, 6, 7],
-                                             [11, 12, 13, 14]]).float(),
-                      "labels": torch.tensor([1, 1, 1]),
-                      "scores": torch.tensor([1.0, 1.0, 1.0])}]
-
-        expected_tp, expected_fp, actual_fn = 1, 2, 0
-
-        # Act
-        actual_tp, actual_fp, actual_fn = sut.get_confusion_matix(target, predicted, class_index=1)
-
-        # Assert
-        self.assertEqual(expected_tp, len(actual_tp))
-        self.assertEqual(expected_fp, len(actual_fp))
-
-    def test_confusion_matrix_two_gt_boxes(self):
-        """
-        Test simple case for confusion matrix with just one image
-        :return:
-        """
-        # Arrange
-        iou_evaluator = MagicMock()
-
-        iou_evaluator.side_effect = lambda t, p: torch.tensor([[1.0, 0, 0.0]
-                                                                  , [0.0, 0, 1.0]])
-
-        sut = MAPEvaluator(iou_evaluator)
-
-        target = [{"image_id": 1,
-                   "boxes": torch.tensor([[1, 2, 3, 4],
-                                          [10, 12, 13, 14]
-                                          ]).float(),
-                   "labels": torch.tensor([1, 1]),
-                   "area": torch.tensor([1.0, 1.0]),
-                   "iscrowd": torch.tensor([0, 0])
-                   }
-                  ]
-
-        predicted = [{"image_id": 1,
-                      "boxes": torch.tensor([[1, 2, 3, 4],
-                                             [4, 5, 6, 7],
-                                             [10, 12, 13, 14]]).float(),
-                      "labels": torch.tensor([1, 1, 1]),
-                      "scores": torch.tensor([1.0, 1.0, 1.0])}
-
-                     ]
-
-        expected_tp, expected_fp, actual_fn = 2, 1, 0
-
-        # Act
-        actual_tp, actual_fp, actual_fn = sut.get_confusion_matix(target, predicted, class_index=1)
-
-        # Assert
-        self.assertEqual(expected_tp, len(actual_tp))
-        self.assertEqual(expected_fp, len(actual_fp))
+        self.assertEqual(expected_map_score, round(actual, 2))
 
     def test_evaluate_2_boxes(self):
         """
@@ -136,20 +57,17 @@ class TestMapEvaluator(TestCase):
         :return:
         """
         # Arrange
-        iou_evaluator = MagicMock()
 
-        iou_evaluator.side_effect = lambda t, p: torch.tensor([[1.0, 0]])
+        sut = MAPEvaluator()
 
-        sut = MAPEvaluator(iou_evaluator)
-
-        target = [{"image_id": 1,
+        target = [{"image_id": torch.tensor(1),
                    "boxes": torch.tensor([[1, 2, 3, 4]]).float(),
                    "labels": torch.tensor([1]),
                    "area": torch.tensor([1.0]),
                    "iscrowd": torch.tensor([0])
                    }]
 
-        predicted = [{"image_id": 1,
+        predicted = [{"image_id": torch.tensor(1),
                       "boxes": torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8]]).float(),
                       "labels": torch.tensor([1, 1]),
                       "scores": torch.tensor([1.0, 1.0])
@@ -162,53 +80,42 @@ class TestMapEvaluator(TestCase):
         # Assert
         self.assertEqual(round(expected_map, 2), round(actual, 2))
 
-    # def test_evaluate_2_images(self):
-    #     """
-    #     Test case where there are 2 images as input
-    #     :return:
-    #     """
-    #     # Arrange
-    #     iou_evaluator = MagicMock()
-    #
-    #     iou = {1: torch.tensor([[1.0, 0]])
-    #         , 2:torch.tensor([[ 0]])}
-    #
-    #     counter = 0
-    #     def mock_iou_func(t, p):
-    #         result = iou[counter]
-    #         return iou[counter]
-    #
-    #     iou_evaluator.evaluate.side_effect =  mock_iou_func
-    #
-    #     sut = MAPEvaluator(iou_evaluator)
-    #
-    #     target = [{"image_id": 1,
-    #                "boxes": torch.tensor([[1, 2, 3, 4]]).float(),
-    #                "labels": torch.tensor([1]),
-    #                "area": torch.tensor([1.0]),
-    #                "iscrowd": torch.tensor([0])
-    #                },
-    #               {"image_id": 2,
-    #                "boxes": torch.tensor([[1, 2, 3, 4]]).float(),
-    #                "labels": torch.tensor([1]),
-    #                "area": torch.tensor([1.0]),
-    #                "iscrowd": torch.tensor([0])
-    #                }]
-    #
-    #     predicted = [{"image_id": 1,
-    #                   "boxes": torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8]]).float(),
-    #                   "labels": torch.tensor([1, 1]),
-    #                   "scores": torch.tensor([1.0, 1.0])
-    #                   },
-    #                  {"image_id": 2,
-    #                   "boxes": torch.tensor([[7, 8, 9, 10]]).float(),
-    #                   "labels": torch.tensor([1]),
-    #                   "scores": torch.tensor([1.0])
-    #                   }]
-    #     expected_map = .5
-    #
-    #     # Act
-    #     actual = sut.evaluate(target, predicted)
-    #
-    #     # Assert
-    #     self.assertEqual(expected_map, actual)
+    def test_evaluate_2_images(self):
+        """
+        Test case where there are 2 images as input
+        :return:
+        """
+        # Arrange
+
+        sut = MAPEvaluator()
+
+        target = [{"image_id": torch.tensor(1),
+                   "boxes": torch.tensor([[1, 2, 3, 4]]).float(),
+                   "labels": torch.tensor([1]),
+                   "area": torch.tensor([1.0]),
+                   "iscrowd": torch.tensor([0])
+                   },
+                  {"image_id": torch.tensor(2),
+                   "boxes": torch.tensor([[1, 2, 3, 4]]).float(),
+                   "labels": torch.tensor([1]),
+                   "area": torch.tensor([1.0]),
+                   "iscrowd": torch.tensor([0])
+                   }]
+
+        predicted = [{"image_id": torch.tensor(1),
+                      "boxes": torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8]]).float(),
+                      "labels": torch.tensor([1, 1]),
+                      "scores": torch.tensor([1.0, 1.0])
+                      },
+                     {"image_id": torch.tensor(2),
+                      "boxes": torch.tensor([[7, 8, 9, 10]]).float(),
+                      "labels": torch.tensor([1]),
+                      "scores": torch.tensor([1.0])
+                      }]
+        expected_map = .5
+
+        # Act
+        actual = sut(target, predicted)
+
+        # Assert
+        self.assertEqual(expected_map, round(actual, 2))

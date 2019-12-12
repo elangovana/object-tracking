@@ -3,8 +3,8 @@ python:
   - "3.6.9"
 install:
   - pip3 -V
+  - pip3 install Cython==0.23.4
   - pip3 install --progress-bar off -r src/requirements_prod.txt
-
   - pip3 list
   - pip3 install --progress-bar  off -r tests/requirements.txt
 

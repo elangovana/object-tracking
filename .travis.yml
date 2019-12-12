@@ -5,9 +5,11 @@ install:
   - pip install pip==19.2.3
   - pip -V
   - pip install --progress-bar  off -r src/requirements_prod.txt
+  - pip list
   - pip install --progress-bar  off -r tests/requirements.txt
 
 script:
   - export PYTHONPATH=./src
+  - python -m Cython
   - pytest --tb=short
 

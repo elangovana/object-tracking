@@ -2,7 +2,6 @@ language: python
 python:
   - "3.6.9"
 install:
-  - pip install pip3
   - pip3 -V
   - pip3 install --progress-bar off -r source/requirements_prod.txt
 

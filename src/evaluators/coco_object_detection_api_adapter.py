@@ -138,7 +138,7 @@ class CocoObjectDetectionApiAdapter:
             # """
             #
             category = torch_vision_anno["labels"][i].item()
-            box_lst = box.numpy().tolist()
+            box_lst = box.cpu().numpy().tolist()
 
             annotation = {
                 "id": None,

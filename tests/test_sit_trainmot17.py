@@ -3,12 +3,12 @@ import tempfile
 from unittest import TestCase
 
 import torch
+from torch.utils.data import DataLoader
 
 from dataset_factory_service_locator import DatasetFactoryServiceLocator
 from model_factory_service_locator import ModelFactoryServiceLocator
 from predict import Predict
 from train_factory import TrainFactory
-from torch.utils.data import DataLoader
 
 
 class TestSitTrainMot17(TestCase):
@@ -59,8 +59,8 @@ class TestSitTrainMot17(TestCase):
 
         # Act
         actual_predictions = sut(val_data_loader)
-        actual_predictions1 = sut(val_data_loader)
 
+        # Assert
         for e, a in zip(expected_predictions, actual_predictions):
             for k in e:
                 self.assertTrue(torch.all(torch.eq(e[k], a[k])),

@@ -19,10 +19,9 @@ import os
 from torch.optim import SGD
 
 from evaluators.map_evaluator import MAPEvaluator
-from models.faster_rcnn import FasterRCnn
+from model_factory_service_locator import ModelFactoryServiceLocator
 from train import Train
 from train_pipeline import TrainPipeline
-from evaluators.iou_matrix import IoUMatrix
 
 
 class TrainFactory:
@@ -30,9 +29,11 @@ class TrainFactory:
     Constructs the objects required to kick off training
     """
 
-    def __init__(self, epochs=50, early_stopping=True, patience_epochs=10, batch_size=32, num_workers=None,
+    def __init__(self, model_factory_name, epochs=50, early_stopping=True, patience_epochs=10, batch_size=32,
+                 num_workers=None,
                  additional_args=None):
 
+        self.model_factory_name = model_factory_name
         if num_workers is None and os.cpu_count() > 1:
             self.num_workers = min(4, os.cpu_count() - 1)
         else:
@@ -57,7 +58,10 @@ class TrainFactory:
         evaluator = MAPEvaluator()
         trainer = Train(patience_epochs=self.patience_epochs, early_stopping=self.early_stopping,
                         epochs=self.epochs, evaluator=evaluator)
-        model = FasterRCnn(num_classes=train_dataset.num_classes)
+
+        self.logger.info("Using model {}".format(self.model_factory_name))
+        model_factory = ModelFactoryServiceLocator().get_factory(self.model_factory_name)
+        model = model_factory.get_model(num_classes=train_dataset.num_classes)
 
         # Define optimiser
         learning_rate = float(self._get_value(self.additional_args, "learning_rate", ".0001"))

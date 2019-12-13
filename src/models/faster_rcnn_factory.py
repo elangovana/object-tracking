@@ -12,30 +12,20 @@
 #  express or implied. See the License for the specific language governing    *
 #  permissions and limitations under the License.                             *
 # *****************************************************************************
+import torch
 
-import os
-
-from torch.utils.data import DataLoader
-
-from collate_functions import collate_fn
+from models.base_model_factory import BaseModelFactory
+from models.faster_rcnn import FasterRCnn
 
 
-class TrainPipeline:
+class FasterRcnnFactory(BaseModelFactory):
 
-    def __init__(self, trainer, model, optimiser, loss_func=None, num_workers=None, batch_size=32):
-        self.batch_size = batch_size
-        self.num_workers = num_workers
-        if self.num_workers is None:
-            self.num_workers = 1 if os.cpu_count() == 1 else os.cpu_count() - 1
-        self.trainer = trainer
-        self.optimiser = optimiser
-        self.loss_func = loss_func
-        self.model = model
+    def load_model(self, model_path, num_classes):
+        model = FasterRCnn(num_classes)
+        model.load_state_dict(torch.load(model_path))
+        model.eval()
 
-    def run(self, train_dataset, val_dataset, output_dir):
-        train_data = DataLoader(train_dataset, num_workers=self.num_workers, shuffle=True, batch_size=self.batch_size,
-                                collate_fn=collate_fn)
-        val_data = DataLoader(val_dataset, num_workers=self.num_workers, shuffle=False, batch_size=self.batch_size,
-                              collate_fn=collate_fn)
+        return model
 
-        return self.trainer.run(train_data, val_data, self.model, self.optimiser, output_dir)
+    def get_model(self, num_classes):
+        return FasterRCnn(num_classes)

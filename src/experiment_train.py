@@ -18,6 +18,7 @@ import os
 import sys
 
 from dataset_factory_service_locator import DatasetFactoryServiceLocator
+from model_factory_service_locator import ModelFactoryServiceLocator
 from train_factory import TrainFactory
 
 
@@ -26,7 +27,8 @@ class ExperimentTrain:
     def __init__(self):
         pass
 
-    def run(self, dataset_factory_name, train_dir, val_dir, out_dir, batch_size=32, epochs=10, patience_epoch=2,
+    def run(self, dataset_factory_name, model_factory_name, train_dir, val_dir, out_dir, batch_size=32, epochs=10,
+            patience_epoch=2,
             additional_args=None):
         # Set up dataset
         datasetfactory = DatasetFactoryServiceLocator().get_factory(dataset_factory_name)
@@ -34,7 +36,8 @@ class ExperimentTrain:
         val_dataset = datasetfactory.get_dataset(val_dir)
 
         # Get trainpipeline
-        factory = TrainFactory(num_workers=None, epochs=epochs, batch_size=batch_size, early_stopping=True,
+        factory = TrainFactory(model_factory_name, num_workers=None, epochs=epochs, batch_size=batch_size,
+                               early_stopping=True,
                                patience_epochs=patience_epoch, additional_args=additional_args)
         pipeline = factory.get(train_dataset)
 
@@ -55,6 +58,10 @@ if __name__ == '__main__':
                         help="The input val data", default=os.environ.get("SM_CHANNEL_VAL", None))
 
     parser.add_argument("--outdir", help="The output dir", default=os.environ.get("SM_MODEL_DIR", None))
+
+    parser.add_argument("--model",
+                        help="The type of model",
+                        choices=ModelFactoryServiceLocator().factory_names, required=True)
 
     parser.add_argument("--batchsize", help="The batch size", type=int, default=32)
 
@@ -80,6 +87,7 @@ if __name__ == '__main__':
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     ExperimentTrain().run(args.dataset,
+                          args.model,
                           args.traindir,
                           args.valdir,
                           args.outdir,

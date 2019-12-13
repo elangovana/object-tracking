@@ -61,10 +61,12 @@ class Train:
 
         model.to(device=self.device)
         best_score = None
+        best_model_path = None
         patience = 0
 
         result_logs = []
 
+        best_predictions = None
         for e in range(self.epochs):
             total_train_loss = 0
             for i, (images, targets) in enumerate(train_data):
@@ -93,18 +95,18 @@ class Train:
                 total_train_loss += loss.item()
 
             # compute train score
-            train_target, train_predictions, train_score = self._compute_validation_loss(train_data, model)
+            train_predictions, train_score = self._compute_validation_loss(train_data, model)
 
             # Validation score
-            val_target, val_predictions, val_score = self._compute_validation_loss(val_data, model)
+            val_predictions, val_score = self._compute_validation_loss(val_data, model)
 
             # Save snapshots
             if best_score is None or val_score > best_score:
                 self.logger.info(
                     "Snapshotting as current score {} is > previous best {}".format(val_score, best_score))
-                self.snapshotter.save(model, output_dir=output_dir, prefix="snapshot_")
+                best_model_path = self.snapshotter.save(model, output_dir=output_dir, prefix="snapshot_")
                 best_score = val_score
-
+                best_predictions = val_predictions
                 patience = 0
 
             else:
@@ -129,6 +131,8 @@ class Train:
         self.logger.info("The best val score is {}".format(best_score))
         self.results_writer.dump_object(result_logs, output_dir, "epochs_loss")
 
+        return best_score, best_predictions, best_model_path
+
     def _compute_validation_loss(self, data, model):
         # Model Eval mode
         model.eval()
@@ -144,7 +148,7 @@ class Train:
 
                 # Forward pass
                 # in eval model only gets the predictions and not loss..
-                predicted_batch = model(images, targets)
+                predicted_batch = model(images)
 
                 self.logger.debug("Computing loss function: ")
 
@@ -153,7 +157,7 @@ class Train:
 
         score = self._get_score(target_items, predictions)
 
-        return predictions, target_items, score
+        return predictions, score
 
     def _get_score(self, target, predicted):
         return self.evaluator(target, predicted)

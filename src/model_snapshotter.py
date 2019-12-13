@@ -34,3 +34,5 @@ class Snapshotter(object):
         self.logger.info("Snappshotting model to {} ".format(snapshot_path))
 
         torch.save(model.state_dict(), snapshot_path)
+
+        return snapshot_path

@@ -16,7 +16,6 @@
 import logging
 import os
 
-
 from torch.optim import SGD
 
 from evaluators.map_evaluator import MAPEvaluator
@@ -24,6 +23,7 @@ from models.faster_rcnn import FasterRCnn
 from train import Train
 from train_pipeline import TrainPipeline
 from evaluators.iou_matrix import IoUMatrix
+
 
 class TrainFactory:
     """
@@ -67,11 +67,6 @@ class TrainFactory:
         # optimiser = Adam(lr=self.learning_rate, params=model.parameters())
 
         self.logger.info("Using optimiser {}".format(type(optimiser)))
-
-        # Define loss function
-        tripletloss_margin = float(self._get_value(self.additional_args, "tripletloss_margin", "2.5"))
-        tripletloss_topk = int(self._get_value(self.additional_args, "tripletloss_topk", "25"))
-        # loss = nn.CrossEntropyLoss()
 
         train_pipeline = TrainPipeline(batch_size=self.batch_size,
                                        optimiser=optimiser,

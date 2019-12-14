@@ -15,4 +15,4 @@ Video object tracking
     python ./src/experiment_train.py --dataset Mot17DetectionFactory --traindir ./tests/data/clips --valdir tests/data/clips --batchsize 8 --commit_id 763b78c085244fa2fe816f48545cdb520e037b51  --epochs 2 --learning_rate 0.0001 --log-level INFO --model FasterRcnnFactory --momentum 0.9 --patience 20 --weight_decay 5e-05
     ```
     
-2. To run on SageMaker, see notebook [SageMaker.ipynb](SageMaker.ipynb)
+2. To run on SageMaker, see notebook [Sagemaker.ipynb](Sagemaker.ipynb)

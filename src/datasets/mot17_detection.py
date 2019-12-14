@@ -12,6 +12,7 @@
 #  express or implied. See the License for the specific language governing    *
 #  permissions and limitations under the License.                             *
 # *****************************************************************************
+import configparser
 import os
 
 import torch
@@ -57,7 +58,7 @@ class Mot17Detection(BaseDetectionDataset):
         extensions = ('jpg',)
         self._full_list_annotation = {}
 
-        self._samples, self._labels = self._make_dataset(root, extensions)
+        self._samples, self._labels, self._image_width_height = self._make_dataset(root, extensions)
 
     def __len__(self):
         return len(self._samples)
@@ -65,9 +66,10 @@ class Mot17Detection(BaseDetectionDataset):
     def __getitem__(self, idx: int) -> tuple:
         frame = self._samples[idx]
         labels = self._labels[idx]
+        w, h = self._image_width_height[idx]
 
         if self.transform is not None:
-            frame = self.transform(frame)
+            frame, labels["boxes"] = self.transform(frame, w, h, labels["boxes"])
 
         tensor_labels = {}
         for k, v in labels.items():
@@ -78,6 +80,7 @@ class Mot17Detection(BaseDetectionDataset):
     def _make_dataset(self, root, valid_extensions):
         images = []
         labels = []
+        image_width_height = []
         is_valid_file = lambda x: os.path.splitext(x)[1][1:] in valid_extensions
 
         for clip_name in sorted(os.listdir(root)):
@@ -85,14 +88,23 @@ class Mot17Detection(BaseDetectionDataset):
             # TODO: validate that there is just one image directory in the MOT17 datatset
             image_dir = os.path.join(root, clip_name, "img1")
 
+            w, h = self._get_clip_width_height(root, clip_name)
+
             # Load files from clip
             for i, image_frame_name in enumerate(sorted(os.listdir(image_dir))):
                 path = os.path.join(image_dir, image_frame_name)
                 if is_valid_file(path):
                     labels.append(self._get_labels(root, clip_name, image_frame_name))
                     images.append(path)
+                    image_width_height.append((w, h))
 
-        return images, labels
+        return images, labels, image_width_height
+
+    def _get_clip_width_height(self, root, clip_name):
+        seq_ini = os.path.join(root, clip_name, "seqinfo.ini")
+        config = configparser.ConfigParser()
+        config.read(seq_ini)
+        return float(config["Sequence"]["imWidth"]), float(config["Sequence"]["imHeight"])
 
     def _get_labels(self, root, clip_name, image_frame_name):
         # load all labels for clip

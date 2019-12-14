@@ -12,48 +12,53 @@
 #  express or implied. See the License for the specific language governing    *
 #  permissions and limitations under the License.                             *
 # *****************************************************************************
-import torchvision
 from PIL import Image
 from skimage import io
 from torchvision.transforms import transforms
 
+from base_image_preprocessor import BaseImagePreprocessor
 
-class ImagePreprocessor:
 
-    def __init__(self, original_height, original_width, min_img_size_h, min_img_size_w):
-        self.min_img_size_w = min_img_size_w
-        self.min_img_size_h = min_img_size_h
-        self.original_width = original_width
-        self.original_height = original_height
+class ImagePreprocessor(BaseImagePreprocessor):
 
-    def __call__(self, image_path):
+    def __init__(self, resize_ratio=.50):
+        self.resize_ratio = resize_ratio
+
+    def __call__(self, image_path, image_width, image_height, boxes):
         image = io.imread(image_path)
         # pre-process data
         image = Image.fromarray(image)
 
-        horizontal_crop = torchvision.transforms.RandomCrop((self.original_height / 4, self.original_width),
-                                                            padding=None,
-                                                            pad_if_needed=False,
-                                                            fill=0, padding_mode='constant')
-        # horizontal flip
-        horizonatal_flip = torchvision.transforms.RandomHorizontalFlip(p=0.5)
-
         # Combine all transforms
         transform_pipeline = transforms.Compose([
             # Randomly apply horizontal crop or flip
-            # torchvision.transforms.RandomApply([horizonatal_flip, horizontal_crop], p=0.5),
-            horizonatal_flip,
+
             # Resize
-            # Market150 dataset size is 64 width, height is 128, so we maintain the aspect ratio
-            transforms.Resize((self.min_img_size_h, self.min_img_size_w)),
+            transforms.Resize((int(image_height * self.resize_ratio), int(image_width * self.resize_ratio))),
+
             # Regular stuff
             transforms.ToTensor(),
 
             transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  # torch image: C X H X W
                                  std=[0.229, 0.224, 0.225])])
-        img_tensor = transform_pipeline(image)
-        # Add batch [N, C, H, W]
-        # img_tensor = img.unsqueeze(0)
 
-        return img_tensor
+        img_tensor = transform_pipeline(image)
+
+        # resize boxes as well
+        new_boxes = self._resize_targets(boxes, image_height, image_width)
+
+        return img_tensor, new_boxes
+
+    def _resize_targets(self, boxes, image_height, image_width):
+        new_boxes = []
+        for b in boxes:
+            x, y, w, h = b[0], b[1], b[2], b[3]
+
+            x = x / image_width * self.resize_ratio
+            y = y / image_height * self.resize_ratio
+            w = w * self.resize_ratio
+            h = h * self.resize_ratio
+
+            new_boxes.append([x, y, w, h])
+        return new_boxes

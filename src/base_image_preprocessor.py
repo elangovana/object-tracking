@@ -12,24 +12,15 @@
 #  express or implied. See the License for the specific language governing    *
 #  permissions and limitations under the License.                             *
 # *****************************************************************************
-from datasets.base_detection_dataset_factory import BaseDetectionDatasetFactory
-from datasets.mot17_detection import Mot17Detection
-from image_preprocessor import ImagePreprocessor
 
 
-class Mot17DetectionFactory(BaseDetectionDatasetFactory):
-    """
-    Mot17 dataset factory
-    """
+class BaseImagePreprocessor:
 
-    def get_dataset(self, image_dir):
+    def __call__(self, image_path, image_width, image_height, boxes):
         """
 
-        :param image_dir:
-        :return:
+        :type image_width: object
+
+        :returns: Transformed object and the new bounding boxes
         """
-
-        preporcessor = ImagePreprocessor(resize_ratio=.75)
-        dataset = Mot17Detection(root=image_dir, transform=preporcessor)
-
-        return dataset
+        raise NotImplementedError

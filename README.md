@@ -17,6 +17,12 @@ Video object tracking
     0.72	68.5	78.0	1.7	88,601	10,081	25,963	89.8	77.3
     ```
     
+# Known issues
+1. No multi-gpu training support, only makes use of single gpu
+
+2. Because we are using pretrained models, the model size is quite large and the batch size we can fit into GPU memory is just 8. So need to implement gradient accumulation
+
+3. Sagemaker trainining makes use of SPOT instances, need to implement checkpointing to resume training when interrupted
     
 # Run object detection
 

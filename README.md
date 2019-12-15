@@ -6,7 +6,18 @@ Video object tracking
 # Datasets
 1. MOT 17 dataset [https://motchallenge.net/data/MOT17/](https://motchallenge.net/data/MOT17/)
 
+# Benchmarks
 
+1. Faster RCNN MOT17 detection benchmark [https://motchallenge.net/results/MOT17Det/](https://motchallenge.net/results/MOT17Det/)
+
+    S. Ren, K. He, R. Girshick, J. Sun. Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks. In NIPS, 2015
+
+    ```text
+    AP	    MODA	MODP	FAF	TP	FP	FN	Precision	Recall
+    0.72	68.5	78.0	1.7	88,601	10,081	25,963	89.8	77.3
+    ```
+    
+    
 # Run object detection
 
 1. To run on command line, using the mot17 dataset

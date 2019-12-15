@@ -55,8 +55,8 @@ class ImagePreprocessor(BaseImagePreprocessor):
         for b in boxes:
             x, y, w, h = b[0], b[1], b[2], b[3]
 
-            x = x / image_width * self.resize_ratio
-            y = y / image_height * self.resize_ratio
+            x = x * self.resize_ratio
+            y = y * self.resize_ratio
             w = w * self.resize_ratio
             h = h * self.resize_ratio
 

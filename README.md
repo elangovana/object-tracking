@@ -12,10 +12,11 @@ Video object tracking
 
     S. Ren, K. He, R. Girshick, J. Sun. Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks. In NIPS, 2015
 
-    ```text
-    AP	    MODA	MODP	FAF	TP	FP	FN	Precision	Recall
-    0.72	68.5	78.0	1.7	88,601	10,081	25,963	89.8	77.3
-    ```
+    
+|AP	   | MODA |	MODP	| FAF	|TP	     |FP	 |FN	   |Precision  |Recall|
+|------|------|---------|-------|--------|-------|---------|-----------|------|
+|0.72  | 68.5 |78.0	    | 1.7	|88,601	 |10,081 |	25,963 |89.8	   |77.3  |
+
     
 # Known issues
 1. No multi-gpu training support, only makes use of single gpu

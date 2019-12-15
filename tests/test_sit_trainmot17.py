@@ -31,6 +31,10 @@ class TestSitTrainMot17(TestCase):
         pipeline.run(dataset, dataset, output_dir)
 
     def test_run_predict(self):
+        """
+        Test case to make sure that the results emitted during training match inference
+        :return:
+        """
         # Arrange
         # get train factory
         model_factory_name = ModelFactoryServiceLocator().factory_names[0]
@@ -50,18 +54,17 @@ class TestSitTrainMot17(TestCase):
         score, expected_predictions, model_path = pipeline.run(dataset, dataset, output_dir)
 
         # construct predictor
-        model_factory = ModelFactoryServiceLocator().get_factory(model_factory_name)
-        model = model_factory.load_model(model_path, dataset.num_classes)
-        sut = Predict(model)
+        sut = Predict(model_dict_path=model_path, model_factory_name=model_factory_name,
+                      num_classes=dataset.num_classes)
 
         # Create dataloader
         val_data_loader = DataLoader(dataset, num_workers=1, shuffle=False)
 
         # Act
-        actual_predictions = sut(val_data_loader)
+        actual_predictions = sut.predict_batch(val_data_loader)
 
         # Assert
         for e, a in zip(expected_predictions, actual_predictions):
             for k in e:
                 self.assertTrue(torch.all(torch.eq(e[k], a[k])),
-                                "Could   not match key {} , \n{}\n {}".format(k, e[k], a[k]))
+                                "Could not match key {} , \n{}\n {}".format(k, e[k], a[k]))

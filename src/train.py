@@ -24,14 +24,15 @@ from result_writer import ResultWriter
 class Train:
 
     def __init__(self, device=None, snapshotter=None, early_stopping=True, patience_epochs=10, epochs=10,
-                 results_writer=None, evaluator=None):
-        # TODO: currently only single GPU
+                 results_writer=None, evaluator=None, accumulation_steps=1):
+        self.accumulation_steps = accumulation_steps
         self.evaluator = evaluator
         self.results_writer = results_writer
         self.epochs = epochs
         self.patience_epochs = patience_epochs
         self.early_stopping = early_stopping
         self.snapshotter = snapshotter
+        # TODO: currently only single GPU
         self.device = device or ('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     @property
@@ -82,12 +83,13 @@ class Train:
                 self.logger.debug("Computing loss function complete ")
 
                 # Backward
-                optimiser.zero_grad()
                 loss = sum(loss for loss in loss_dict.values())
                 loss.backward()
 
                 # Update weights
-                optimiser.step()
+                if (i + 1) % self.accumulation_steps == 0:
+                    optimiser.step()
+                    optimiser.zero_grad()
 
                 self.logger.debug(
                     "Batch {}/{}, loss {}".format(i, e, loss.item()))

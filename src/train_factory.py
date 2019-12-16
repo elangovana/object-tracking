@@ -57,30 +57,37 @@ class TrainFactory:
         return value
 
     def get(self, train_dataset):
+        accumulation_steps = int(self._get_value(self.additional_args, "accumulation_steps", "1"))
+        self.logger.info("Using accumulation steps {}".format(accumulation_steps))
         evaluator = MAPEvaluator()
         trainer = Train(patience_epochs=self.patience_epochs, early_stopping=self.early_stopping,
-                        epochs=self.epochs, evaluator=evaluator)
+                        epochs=self.epochs, evaluator=evaluator, accumulation_steps=accumulation_steps)
 
+        # Model
         self.logger.info("Using model {}".format(self.model_factory_name))
         model_factory = ModelFactoryServiceLocator().get_factory(self.model_factory_name)
         model = model_factory.get_model(num_classes=train_dataset.num_classes)
 
-        # Enable multi gpu
+        # TODO: Enable multi gpu, nn.dataparallel doesnt really work...
         if torch.cuda.device_count() > 1:
-            self.logger.info("Using nn.DataParallel../ multigpu")
+            self.logger.info("Using nn.DataParallel../ multigpu.. Currently not working..")
             model = nn.DataParallel(model)
             # Increase batch size so that is equivalent to the batch
             self.batch_size = self.batch_size * torch.cuda.device_count()
 
+        self.logger.info("Using model {}".format(self.model_factory_name))
+
         # Define optimiser
         learning_rate = float(self._get_value(self.additional_args, "learning_rate", ".0001"))
+        self.logger.info("Using learning_rate {}".format(learning_rate))
+
         weight_decay = float(self._get_value(self.additional_args, "weight_decay", "5e-5"))
         momentum = float(self._get_value(self.additional_args, "momentum", ".9"))
         optimiser = SGD(lr=learning_rate, params=model.parameters(), momentum=momentum, weight_decay=weight_decay)
-        # optimiser = Adam(lr=self.learning_rate, params=model.parameters())
 
         self.logger.info("Using optimiser {}".format(type(optimiser)))
 
+        # Kick off training pipeline
         train_pipeline = TrainPipeline(batch_size=self.batch_size,
                                        optimiser=optimiser,
                                        trainer=trainer,

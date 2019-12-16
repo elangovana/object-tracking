@@ -16,6 +16,8 @@
 import logging
 import os
 
+import torch
+from torch import nn
 from torch.optim import SGD
 
 from evaluators.map_evaluator import MAPEvaluator
@@ -62,6 +64,13 @@ class TrainFactory:
         self.logger.info("Using model {}".format(self.model_factory_name))
         model_factory = ModelFactoryServiceLocator().get_factory(self.model_factory_name)
         model = model_factory.get_model(num_classes=train_dataset.num_classes)
+
+        # Enable multi gpu
+        if torch.cuda.device_count() > 1:
+            self.logger.info("Using nn.DataParallel../ multigpu")
+            model = nn.DataParallel(model)
+            # Increase batch size so that is equivalent to the batch
+            self.batch_size = self.batch_size * torch.cuda.device_count()
 
         # Define optimiser
         learning_rate = float(self._get_value(self.additional_args, "learning_rate", ".0001"))

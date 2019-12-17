@@ -18,7 +18,7 @@ import os
 
 import torch
 from torch import nn
-from torch.optim import SGD
+from torch.optim import Adam
 
 from evaluators.map_evaluator import MAPEvaluator
 from model_factory_service_locator import ModelFactoryServiceLocator
@@ -67,24 +67,22 @@ class TrainFactory:
         self.logger.info("Using model {}".format(self.model_factory_name))
         model_factory = ModelFactoryServiceLocator().get_factory(self.model_factory_name)
         model = model_factory.get_model(num_classes=train_dataset.num_classes)
-
         # TODO: Enable multi gpu, nn.dataparallel doesnt really work...
         if torch.cuda.device_count() > 1:
             self.logger.info("Using nn.DataParallel../ multigpu.. Currently not working..")
             model = nn.DataParallel(model)
             # Increase batch size so that is equivalent to the batch
             self.batch_size = self.batch_size * torch.cuda.device_count()
-
-        self.logger.info("Using model {}".format(self.model_factory_name))
+        self.logger.info("Using model {}".format(type(model)))
 
         # Define optimiser
         learning_rate = float(self._get_value(self.additional_args, "learning_rate", ".0001"))
         self.logger.info("Using learning_rate {}".format(learning_rate))
 
-        weight_decay = float(self._get_value(self.additional_args, "weight_decay", "5e-5"))
-        momentum = float(self._get_value(self.additional_args, "momentum", ".9"))
-        optimiser = SGD(lr=learning_rate, params=model.parameters(), momentum=momentum, weight_decay=weight_decay)
-
+        # weight_decay = float(self._get_value(self.additional_args, "weight_decay", "5e-5"))
+        # momentum = float(self._get_value(self.additional_args, "momentum", ".9"))
+        # optimiser = SGD(lr=learning_rate, params=model.parameters(), momentum=momentum, weight_decay=weight_decay)
+        optimiser = Adam(lr=learning_rate, params=model.parameters())
         self.logger.info("Using optimiser {}".format(type(optimiser)))
 
         # Kick off training pipeline

@@ -23,3 +23,7 @@ class BaseDetectionDataset(VisionDataset):
     @property
     def num_classes(self):
         raise NotImplementedError
+
+    @property
+    def max_detections_per_image(self):
+        raise NotImplementedError

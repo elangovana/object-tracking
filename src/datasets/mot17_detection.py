@@ -48,6 +48,10 @@ class Mot17Detection(BaseDetectionDataset):
     """
 
     @property
+    def max_detections_per_image(self):
+        return 500
+
+    @property
     def num_classes(self):
         # 1 class (person) + background
         return 1 + 1

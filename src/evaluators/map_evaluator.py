@@ -27,7 +27,8 @@ class MAPEvaluator(BaseDetectionEvaluator):
     Wrapper over coco eval
     """
 
-    def __init__(self, iou_threshold=0.5):
+    def __init__(self, iou_threshold=0.5, max_detections_per_image=500):
+        self.max_detections_per_image = max_detections_per_image
         self.iou_threshold = iou_threshold
 
     @property
@@ -47,6 +48,7 @@ class MAPEvaluator(BaseDetectionEvaluator):
         coco_gt, coco_p = CocoObjectDetectionApiAdapter().to_coco(g, p)
 
         cocoEval = COCOeval(coco_gt, coco_p, ANN_TYPE)
+        cocoEval.params.maxDets = [1, self.max_detections_per_image // 2, self.max_detections_per_image]
 
         cocoEval.params.imgIds = coco_gt.getImgIds()
         cocoEval.evaluate()
@@ -54,4 +56,20 @@ class MAPEvaluator(BaseDetectionEvaluator):
         cocoEval.summarize()
 
         # Returns best Iou and the scores
-        return cocoEval.stats[0]
+        # internally coco stats
+        # stats = np.zeros((12,))
+        # stats[0] = _summarize(1)
+        # stats[1] = _summarize(1, iouThr=.5, maxDets=self.params.maxDets[2])
+        # stats[2] = _summarize(1, iouThr=.75, maxDets=self.params.maxDets[2])
+        # stats[3] = _summarize(1, areaRng='small', maxDets=self.params.maxDets[2])
+        # stats[4] = _summarize(1, areaRng='medium', maxDets=self.params.maxDets[2])
+        # stats[5] = _summarize(1, areaRng='large', maxDets=self.params.maxDets[2])
+        # stats[6] = _summarize(0, maxDets=self.params.maxDets[0])
+        # stats[7] = _summarize(0, maxDets=self.params.maxDets[1])
+        # stats[8] = _summarize(0, maxDets=self.params.maxDets[2])
+        # stats[9] = _summarize(0, areaRng='small', maxDets=self.params.maxDets[2])
+        # stats[10] = _summarize(0, areaRng='medium', maxDets=self.params.maxDets[2])
+        # stats[11] = _summarize(0, areaRng='large', maxDets=self.params.maxDets[2])
+
+        # returning 1, which is precision 1oU at 0.5
+        return cocoEval.stats[1]

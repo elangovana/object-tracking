@@ -59,7 +59,7 @@ class TrainFactory:
     def get(self, train_dataset):
         accumulation_steps = int(self._get_value(self.additional_args, "accumulation_steps", "1"))
         self.logger.info("Using accumulation steps {}".format(accumulation_steps))
-        evaluator = MAPEvaluator()
+        evaluator = MAPEvaluator(max_detections_per_image=train_dataset.max_detections_per_image)
         trainer = Train(patience_epochs=self.patience_epochs, early_stopping=self.early_stopping,
                         epochs=self.epochs, evaluator=evaluator, accumulation_steps=accumulation_steps)
 

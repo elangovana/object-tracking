@@ -12,7 +12,7 @@
 #  express or implied. See the License for the specific language governing    *
 #  permissions and limitations under the License.                             *
 # *****************************************************************************
-
+import glob
 import logging
 import os
 
@@ -33,8 +33,9 @@ class TrainFactory:
 
     def __init__(self, model_factory_name, epochs=50, early_stopping=True, patience_epochs=10, batch_size=32,
                  num_workers=None,
-                 additional_args=None):
+                 additional_args=None, checkpoint_dir=None):
 
+        self.checkpoint_dir = checkpoint_dir
         self.model_factory_name = model_factory_name
         if num_workers is None and os.cpu_count() > 1:
             self.num_workers = min(4, os.cpu_count() - 1)
@@ -67,6 +68,17 @@ class TrainFactory:
         self.logger.info("Using model {}".format(self.model_factory_name))
         model_factory = ModelFactoryServiceLocator().get_factory(self.model_factory_name)
         model = model_factory.get_model(num_classes=train_dataset.num_classes)
+
+        # If checkpoint file is available, load from checkpoint
+        if self.checkpoint_dir is not None:
+            model_files = list(glob.glob("{}/*.pth".format(self.checkpoint_dir)))
+            if len(model_files) > 0:
+                model_file = model_files[0]
+                self.logger.info(
+                    "Loading checkpoint {} , found {} checkpoint files".format(model_file, len(model_files)))
+                model = model_factory.load_model(model_file, num_classes=train_dataset.num_classes)
+
+
         # TODO: Enable multi gpu, nn.dataparallel doesnt really work...
         if torch.cuda.device_count() > 1:
             self.logger.info("Using nn.DataParallel../ multigpu.. Currently not working..")

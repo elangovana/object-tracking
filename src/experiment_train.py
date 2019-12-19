@@ -27,7 +27,7 @@ class ExperimentTrain:
     def __init__(self):
         pass
 
-    def run(self, dataset_factory_name, model_factory_name, train_dir, val_dir, out_dir, modeldir, checkpointdir,
+    def run(self, dataset_factory_name, model_factory_name, train_dir, val_dir, out_dir, modeldir, checkpointdir=None,
             batch_size=32, epochs=10,
             patience_epoch=2,
             additional_args=None):
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     parser.add_argument("--patience", help="The number of patience epochs", type=int, default=10)
 
     parser.add_argument("--checkpointdir", help="The checkpoint dir", type=str,
-                        default=os.environ.get("SM_OUTPUT_DIR", None))
+                        default=None)
 
     parser.add_argument("--log-level", help="Log level", default="INFO", choices={"INFO", "WARN", "DEBUG", "ERROR"})
 

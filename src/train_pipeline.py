@@ -32,7 +32,7 @@ class TrainPipeline:
         self.loss_func = loss_func
         self.model = model
 
-    def run(self, train_dataset, val_dataset, output_dir, model_dir, checkpoint_dir):
+    def run(self, train_dataset, val_dataset, output_dir, model_dir, checkpoint_dir=None):
         train_data = DataLoader(train_dataset, num_workers=self.num_workers, shuffle=True, batch_size=self.batch_size,
                                 collate_fn=collate_fn)
         val_data = DataLoader(val_dataset, num_workers=self.num_workers, shuffle=False, batch_size=self.batch_size,

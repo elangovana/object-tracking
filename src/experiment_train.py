@@ -42,7 +42,8 @@ class ExperimentTrain:
             # Get trainpipeline
         factory = TrainFactory(model_factory_name, num_workers=None, epochs=epochs, batch_size=batch_size,
                                early_stopping=True,
-                               patience_epochs=patience_epoch, additional_args=additional_args)
+                               patience_epochs=patience_epoch, additional_args=additional_args,
+                               checkpoint_dir=checkpointdir)
         pipeline = factory.get(train_dataset)
 
         # Start training

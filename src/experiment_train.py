@@ -36,7 +36,10 @@ class ExperimentTrain:
         train_dataset = datasetfactory.get_dataset(train_dir)
         val_dataset = datasetfactory.get_dataset(val_dir)
 
-        # Get trainpipeline
+        if not os.path.exists(checkpointdir):
+            os.makedirs(checkpointdir, exist_ok=True)
+
+            # Get trainpipeline
         factory = TrainFactory(model_factory_name, num_workers=None, epochs=epochs, batch_size=batch_size,
                                early_stopping=True,
                                patience_epochs=patience_epoch, additional_args=additional_args)

@@ -57,7 +57,7 @@ class Train:
     def results_writer(self, value):
         self._results_writer = value
 
-    def run(self, train_data, val_data, model, optimiser, output_dir):
+    def run(self, train_data, val_data, model, optimiser, output_dir, model_dir, checkpoint_dir=None):
         self.logger.info("Running training...")
 
         model.to(device=self.device)
@@ -106,13 +106,16 @@ class Train:
             if best_score is None or val_score > best_score:
                 self.logger.info(
                     "Snapshotting as current score {} is > previous best {}".format(val_score, best_score))
-                best_model_path = self.snapshotter.save(model, output_dir=output_dir, prefix="snapshot_")
+                best_model_path = self.snapshotter.save(model, output_dir=model_dir, prefix="snapshot_")
                 best_score = val_score
                 best_predictions = val_predictions
                 patience = 0
 
             else:
                 patience += 1
+
+            if checkpoint_dir is not None:
+                self.snapshotter.save(model, output_dir=checkpoint_dir, prefix="checkpoint_")
 
             print("###score: train_loss### {}".format(total_train_loss))
             print("###score: train_score### {}".format(train_score))

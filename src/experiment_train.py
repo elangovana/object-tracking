@@ -36,7 +36,7 @@ class ExperimentTrain:
         train_dataset = datasetfactory.get_dataset(train_dir)
         val_dataset = datasetfactory.get_dataset(val_dir)
 
-        if not os.path.exists(checkpointdir):
+        if checkpointdir is not None and not os.path.exists(checkpointdir):
             os.makedirs(checkpointdir, exist_ok=True)
 
             # Get trainpipeline

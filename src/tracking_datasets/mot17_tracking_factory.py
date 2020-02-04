@@ -12,12 +12,12 @@
 #  express or implied. See the License for the specific language governing    *
 #  permissions and limitations under the License.                             *
 # *****************************************************************************
-from datasets.base_detection_dataset_factory import BaseDetectionDatasetFactory
 from image_preprocessor import ImagePreprocessor
+from tracking_datasets.base_tracking_dataset_factory import BaseTrackingDatasetFactory
 from tracking_datasets.mot17_tracking import Mot17Tracking
 
 
-class Mot17TrackingFactory(BaseDetectionDatasetFactory):
+class Mot17TrackingFactory(BaseTrackingDatasetFactory):
     """
     Mot17 dataset tracking factory
     """

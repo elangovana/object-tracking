@@ -25,10 +25,11 @@ class TestSitTrainMot17(TestCase):
         train_factory = TrainFactory(model_factory_name, num_workers=1, epochs=1, batch_size=6, early_stopping=True,
                                      patience_epochs=2)
         output_dir = tempfile.mkdtemp()
+        model_dir = tempfile.mkdtemp()
 
         # Act
         pipeline = train_factory.get(dataset)
-        pipeline.run(dataset, dataset, output_dir)
+        pipeline.run(dataset, dataset, output_dir, model_dir)
 
     def test_run_predict(self):
         """
@@ -50,8 +51,10 @@ class TestSitTrainMot17(TestCase):
         train_factory = TrainFactory(model_factory_name, num_workers=1, epochs=1, batch_size=6, early_stopping=True,
                                      patience_epochs=2)
         output_dir = tempfile.mkdtemp()
+        model_dir = tempfile.mkdtemp()
+
         pipeline = train_factory.get(dataset)
-        score, expected_predictions, model_path = pipeline.run(dataset, dataset, output_dir)
+        score, expected_predictions, model_path = pipeline.run(dataset, dataset, output_dir, model_dir)
 
         # construct predictor
         sut = Predict(model_dict_path=model_path, model_factory_name=model_factory_name,

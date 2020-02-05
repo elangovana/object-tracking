@@ -15,7 +15,7 @@
 import os
 from unittest import TestCase
 
-from datasets.mot17_detection import Mot17Detection
+from detection_datasets.mot17_detection import Mot17Detection
 
 
 class TestMot17Detection(TestCase):

@@ -16,7 +16,7 @@ import importlib
 import os
 import pkgutil
 
-from datasets.base_detection_dataset_factory import BaseDetectionDatasetFactory
+from detection_datasets.base_detection_dataset_factory import BaseDetectionDatasetFactory
 
 
 class DatasetFactoryServiceLocator:
@@ -25,14 +25,14 @@ class DatasetFactoryServiceLocator:
     """
 
     def __init__(self):
-        # Expect the datset factory is under datasets path under the parent of the __file__
-        datasets_base_dir = "datasets"
+        # Expect the datset factory is under detection_datasets path under the parent of the __file__
+        datasets_base_dir = "detection_datasets"
         base_class = BaseDetectionDatasetFactory
 
         # search path
         search_path = os.path.join(os.path.dirname(__file__), datasets_base_dir)
 
-        # load subclasses of BaseDetectionDatasetFactory from datasets
+        # load subclasses of BaseDetectionDatasetFactory from detection_datasets
         for _, name, _ in pkgutil.iter_modules([search_path]):
             importlib.import_module(datasets_base_dir + "." + name)
 

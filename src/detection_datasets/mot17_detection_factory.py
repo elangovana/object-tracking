@@ -12,8 +12,8 @@
 #  express or implied. See the License for the specific language governing    *
 #  permissions and limitations under the License.                             *
 # *****************************************************************************
-from datasets.base_detection_dataset_factory import BaseDetectionDatasetFactory
-from datasets.mot17_detection import Mot17Detection
+from detection_datasets.base_detection_dataset_factory import BaseDetectionDatasetFactory
+from detection_datasets.mot17_detection import Mot17Detection
 from image_preprocessor import ImagePreprocessor
 
 

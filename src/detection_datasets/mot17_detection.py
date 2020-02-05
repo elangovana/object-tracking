@@ -17,7 +17,7 @@ import os
 
 import torch
 
-from datasets.base_detection_dataset import BaseDetectionDataset
+from detection_datasets.base_detection_dataset import BaseDetectionDataset
 
 
 class Mot17Detection(BaseDetectionDataset):

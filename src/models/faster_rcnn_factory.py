@@ -16,16 +16,46 @@ import torch
 
 from models.base_model_factory import BaseModelFactory
 from models.faster_rcnn import FasterRCnn
+import logging
 
 
 class FasterRcnnFactory(BaseModelFactory):
 
-    def load_model(self, model_path, num_classes):
-        model = FasterRCnn(num_classes)
+    @property
+    def logger(self):
+        return logging.getLogger(__name__)
+
+    def load_model(self, model_path, num_classes, **kwargs):
+        rpn_pre_nms_top_n_train = int(self._get_value(kwargs, "rpn_pre_nms_top_n_train", "100"))
+        rpn_pre_nms_top_n_test = int(self._get_value(kwargs, "rpn_pre_nms_top_n_test", "100")),
+        rpn_post_nms_top_n_train = int(self._get_value(kwargs, "rpn_post_nms_top_n_train", "100"))
+        rpn_post_nms_top_n_test = int(self._get_value(kwargs, "rpn_post_nms_top_n_test", "100"))
+
+        model = FasterRCnn(num_classes, rpn_pre_nms_top_n_train=rpn_pre_nms_top_n_train,
+                           rpn_pre_nms_top_n_test=rpn_pre_nms_top_n_test,
+                           rpn_post_nms_top_n_train=rpn_post_nms_top_n_train,
+                           rpn_post_nms_top_n_test=rpn_post_nms_top_n_test)
         model.load_state_dict(torch.load(model_path))
         model.eval()
 
         return model
 
-    def get_model(self, num_classes):
-        return FasterRCnn(num_classes)
+    def get_model(self, num_classes, **kwargs):
+        rpn_pre_nms_top_n_train = int(self._get_value(kwargs, "rpn_pre_nms_top_n_train", "100"))
+        rpn_pre_nms_top_n_test = int(self._get_value(kwargs, "rpn_pre_nms_top_n_test", "100")),
+        rpn_post_nms_top_n_train = int(self._get_value(kwargs, "rpn_post_nms_top_n_train", "100"))
+        rpn_post_nms_top_n_test = int(self._get_value(kwargs, "rpn_post_nms_top_n_test", "100"))
+
+        model = FasterRCnn(num_classes, rpn_pre_nms_top_n_train=rpn_pre_nms_top_n_train,
+                           rpn_pre_nms_top_n_test=rpn_pre_nms_top_n_test,
+                           rpn_post_nms_top_n_train=rpn_post_nms_top_n_train,
+                           rpn_post_nms_top_n_test=rpn_post_nms_top_n_test)
+        return FasterRCnn(num_classes, rpn_pre_nms_top_n_train=rpn_pre_nms_top_n_train,
+                          rpn_pre_nms_top_n_test=rpn_pre_nms_top_n_test,
+                          rpn_post_nms_top_n_train=rpn_post_nms_top_n_train,
+                          rpn_post_nms_top_n_test=rpn_post_nms_top_n_test)
+
+    def _get_value(self, kwargs, key, default):
+        value = kwargs.get(key, default)
+        self.logger.info("Retrieving key {} with default {}, found {}".format(key, default, value))
+        return value

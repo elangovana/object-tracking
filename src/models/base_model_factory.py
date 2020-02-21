@@ -14,8 +14,8 @@
 # *****************************************************************************
 class BaseModelFactory:
 
-    def get_model(self, num_classes):
+    def get_model(self, num_classes, **kwargs):
         raise NotImplementedError
 
-    def load_model(self, model_path, num_classes):
+    def load_model(self, model_path, num_classes, **kwargs):
         raise NotImplementedError

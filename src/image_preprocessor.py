@@ -13,7 +13,6 @@
 #  permissions and limitations under the License.                             *
 # *****************************************************************************
 from PIL import Image
-from skimage import io
 from torchvision.transforms import transforms
 
 from base_image_preprocessor import BaseImagePreprocessor
@@ -25,9 +24,11 @@ class ImagePreprocessor(BaseImagePreprocessor):
         self.resize_ratio = resize_ratio
 
     def __call__(self, image_path, image_width, image_height, boxes):
-        image = io.imread(image_path)
-        # pre-process data
-        image = Image.fromarray(image)
+
+        # Convert to PIL image to apply transformations
+        image = Image.open(image_path)
+        if image.getbands()[0] == 'L':
+            image = image.convert('RGB')
 
         # Combine all transforms
         transform_pipeline = transforms.Compose([

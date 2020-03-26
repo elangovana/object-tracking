@@ -23,7 +23,11 @@ phases:
     commands:
       # Run Tests
       - echo Building project $projectname
-
+      - pip install --progress-bar off -r src/requirements_base.txt
+      - pip install --progress-bar off -r src/requirements_prod.txt
+      - pip install --progress-bar  off -r tests/requirements.txt
+      - export PYTHONPATH=./src
+      - pytest --tb=short
 
       ## Tests passed, so build docker
       - echo Building the Docker image...

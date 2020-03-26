@@ -13,6 +13,7 @@
 #  permissions and limitations under the License.                             *
 # *****************************************************************************
 import torch
+from torchvision.models.detection.rpn import AnchorGenerator
 
 from models.base_model_factory import BaseModelFactory
 from models.faster_rcnn import FasterRCnn
@@ -46,14 +47,18 @@ class FasterRcnnFactory(BaseModelFactory):
         rpn_post_nms_top_n_train = int(self._get_value(kwargs, "rpn_post_nms_top_n_train", "100"))
         rpn_post_nms_top_n_test = int(self._get_value(kwargs, "rpn_post_nms_top_n_test", "100"))
 
+        # TODO: Make this configurable, as these boxes depend on the type of object detection
+        anchor_sizes = ((256,), (512,), (128,), (64,),)
+        aspect_ratios = ((2.0, 4.0, 8.0, 12.0),) * len(anchor_sizes)
+        rpn_anchor_generator = AnchorGenerator(
+            anchor_sizes, aspect_ratios
+        )
+
         model = FasterRCnn(num_classes, rpn_pre_nms_top_n_train=rpn_pre_nms_top_n_train,
                            rpn_pre_nms_top_n_test=rpn_pre_nms_top_n_test,
                            rpn_post_nms_top_n_train=rpn_post_nms_top_n_train,
-                           rpn_post_nms_top_n_test=rpn_post_nms_top_n_test)
-        return FasterRCnn(num_classes, rpn_pre_nms_top_n_train=rpn_pre_nms_top_n_train,
-                          rpn_pre_nms_top_n_test=rpn_pre_nms_top_n_test,
-                          rpn_post_nms_top_n_train=rpn_post_nms_top_n_train,
-                          rpn_post_nms_top_n_test=rpn_post_nms_top_n_test)
+                           rpn_post_nms_top_n_test=rpn_post_nms_top_n_test, rpn_anchor_generator=rpn_anchor_generator)
+        return model
 
     def _get_value(self, kwargs, key, default):
         value = kwargs.get(key, default)

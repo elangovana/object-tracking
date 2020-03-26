@@ -20,7 +20,7 @@ from base_image_preprocessor import BaseImagePreprocessor
 
 class ImagePreprocessor(BaseImagePreprocessor):
 
-    def __init__(self, resize_ratio=.50):
+    def __init__(self, resize_ratio=1 / 4):
         self.resize_ratio = resize_ratio
 
     def __call__(self, image_path, image_width, image_height, boxes):
